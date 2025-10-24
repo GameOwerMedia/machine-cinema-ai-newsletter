@@ -80,3 +80,16 @@ hr {
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }
+
+/* Banner styles */
+.banner {
+  background: #111;
+  border: 1px solid #ff2b2b;
+  color: #f2f2f2;
+  padding: 8px 12px;
+  margin: 10px 0 18px;
+  font-size: 0.95rem;
+  display: inline-block;
+  border-radius: 4px;
+}
+.banner .clock { margin-right: 6px; }
