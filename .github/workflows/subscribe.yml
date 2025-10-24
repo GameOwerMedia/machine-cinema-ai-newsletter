@@ -1,0 +1,72 @@
+name: "Subscribe via issues"
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  append:
+    if: contains(github.event.issue.labels.*.name, 'subscribe')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse issue and update subscribers list
+        id: handler
+        run: |
+          python scripts/handle_subscriber_issue.py "$GITHUB_EVENT_PATH" > result.json
+          cat result.json
+          echo "payload<<EOF" >> "$GITHUB_OUTPUT"
+          cat result.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Commit new subscriber
+        if: ${{ fromJson(steps.handler.outputs.payload).changes == true }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/subscribers.txt
+          git commit -m "Add subscriber from issue #${{ github.event.issue.number }}"
+          git push
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        env:
+          HANDLER_RESULT: ${{ steps.handler.outputs.payload }}
+        with:
+          script: |
+            const result = JSON.parse(process.env.HANDLER_RESULT);
+            const email = result.email || 'podany adres';
+            const messages = {
+              added: `Dziękujemy! Adres **${email}** został dopisany do listy subskrybentów.`,
+              duplicate: `Adres **${email}** był już na liście – nic nie musieliśmy zmieniać.`,
+              invalid: `Nie udało się odczytać poprawnego adresu e-mail z treści zgłoszenia. Edytuj proszę zgłoszenie i upewnij się, że podałeś prawidłowy adres.`
+            };
+            const body = messages[result.status] || 'Przetworzyliśmy zgłoszenie.';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Close issue when processed
+        if: ${{ fromJson(steps.handler.outputs.payload).status != 'invalid' }}
+        uses: actions/github-script@v7
+        env:
+          HANDLER_RESULT: ${{ steps.handler.outputs.payload }}
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });
