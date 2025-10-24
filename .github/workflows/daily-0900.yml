@@ -50,12 +50,20 @@ jobs:
         run: |
           python send_email.py
 
-      - name: Commit updated site
+      - name: Commit updated site and artifacts
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add site
+            if [ -d site ]; then
+              git add site
+            fi
+            if [ -d out ]; then
+              git add out
+            fi
+            if [ -f data/subscribers.txt ]; then
+              git add data/subscribers.txt
+            fi
             git commit -m "Daily newsletter update"
             git push
           else
