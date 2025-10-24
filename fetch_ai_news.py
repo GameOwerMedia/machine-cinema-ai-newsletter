@@ -139,3 +139,16 @@ def save_seen(urls: Iterable[str]) -> None:
     with CACHE_PATH.open("w", encoding="utf-8") as fh:
         json.dump(sorted(seen), fh, ensure_ascii=False, indent=2)
 
+
+def save_seen_links(urls: Iterable[str]) -> None:
+    """Persist the provided URL collection.
+
+    ``generate_all`` historically passed full item dictionaries to
+    :func:`save_seen`, which caused every gathered URL to be marked as
+    consumed even if it was never published.  The new entry point accepts
+    raw URL strings and delegates to :func:`save_seen` for backwards
+    compatibility while keeping the implementation DRY.
+    """
+
+    save_seen(urls)
+

@@ -84,6 +84,15 @@ class FetchAiNewsTests(unittest.TestCase):
             "https://example.com/c",
         ], saved)
 
+    def test_save_seen_links_delegates_to_save_seen(self):
+        fan.save_seen_links(["https://example.com/one", "https://example.com/two"])
+
+        saved = json.loads(self.cache_path.read_text(encoding="utf-8"))
+        self.assertEqual([
+            "https://example.com/one",
+            "https://example.com/two",
+        ], saved)
+
 
 if __name__ == "__main__":
     unittest.main()
