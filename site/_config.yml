@@ -1,0 +1,7 @@
+theme: jekyll-theme-hacker
+title: Machine Cinema Poland - Daily AI Newsletter
+description: Codzienny przegląd AI, Generative i Tech News
+markdown: kramdown
+include: ["assets"]
+plugins:
+  - jekyll-feed

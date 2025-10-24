@@ -1,0 +1,82 @@
+/* --- Machine Cinema Poland – color overrides for Hacker theme --- */
+
+body {
+  background-color: #000;
+  color: #f2f2f2;
+  font-family: "Courier New", monospace;
+}
+
+a {
+  color: #ff2b2b;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+header {
+  border-bottom: 2px solid #ff2b2b;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  color: #fff;
+}
+
+header h1 a {
+  color: #ff2b2b;
+  font-weight: bold;
+}
+
+.subtitle {
+  color: #ccc;
+  font-size: 1rem;
+}
+
+.tagline {
+  font-size: 1.1rem;
+  color: #ddd;
+  margin-top: 0.3rem;
+}
+
+.newsletter {
+  padding: 1rem 0;
+}
+
+.newsletter h2 {
+  color: #ff2b2b;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.3rem;
+}
+
+.footer {
+  border-top: 1px solid #333;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #ccc;
+}
+
+.footer a {
+  color: #ff2b2b;
+}
+
+.footer a:hover {
+  color: #fff;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #222;
+}
+
+.copyright {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}

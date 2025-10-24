@@ -1,0 +1,16 @@
+:root{--fg:#111;--bg:#fff;--muted:#667085;--border:#eaeaea;--accent:#0a7cff}
+@media (prefers-color-scheme: dark){:root{--fg:#e6e6e6;--bg:#0b0b0c;--muted:#9aa3af;--border:#1f2937;--accent:#60a5fa}}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Noto Sans',sans-serif;line-height:1.65;color:var(--fg);background:var(--bg)}
+header{padding:28px 20px;border-bottom:1px solid var(--border);text-align:center}
+header .logo{display:block;margin:0 auto 8px}
+header h1{margin:0 0 4px;font-size:26px}
+header p{margin:2px 0;color:var(--muted)}
+main{max-width:860px;margin:26px auto;padding:0 20px}
+main h2{margin-top:26px;border-bottom:1px solid var(--border);padding-bottom:6px}
+main ol{padding-left:22px}
+main li{margin:12px 0}
+main p{margin:8px 0}
+main a{color:var(--accent);text-decoration:none}
+main a:hover{text-decoration:underline}
+footer{border-top:1px solid var(--border);margin-top:36px;padding:16px 20px;text-align:center;color:var(--muted);font-size:14px}
