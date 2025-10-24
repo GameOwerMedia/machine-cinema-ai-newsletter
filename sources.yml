@@ -1,0 +1,33 @@
+# Primary configuration for the Machine Cinema AI newsletter pipeline.
+# Values here are used both by the fetchers and the daily generator.
+newsletter:
+  # How many stories are published in each thematic bucket.
+  per_bucket: 5
+  # Toggle for the experimental single "Top of the day" digest (unused by default).
+  top_of_day: false
+
+feeds:
+  # Curated dataset checked into the repository for deterministic runs.
+  curated:
+    - name: machine-cinema-curated
+      path: data/news.json
+  # Example RSS feeds consumed in production (not used in the sample runner).
+  rss:
+    - name: Machine Cinema AI Daily
+      url: https://machinecinema.ai/newsletter.xml
+    - name: Example Industry Source
+      url: https://example.com/ai.rss
+
+keywords:
+  creators:
+    - prompt
+    - workflow
+    - video generation
+  marketing:
+    - campaign
+    - viral
+    - creative
+  bizdev:
+    - funding
+    - regulation
+    - governance
