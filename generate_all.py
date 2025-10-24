@@ -1,12 +1,25 @@
 # generate_all.py
 import os
 from datetime import datetime
-from fetch_ai_news import gather, save_seen
+from pathlib import Path
+from typing import List, Sequence, Tuple
+
 import markdown
 from zoneinfo import ZoneInfo
+
+from fetch_ai_news import gather, save_seen_links
 from make_posts import format_post
 
+try:
+    import yaml
+except ImportError:  # pragma: no cover - optional dependency
+    yaml = None
+
+
 N_PER_BUCKET = 5
+CONFIG_PATH = Path("sources.yml")
+
+Section = Tuple[str, str, str]
 
 # miękkie słowa-klucze do tria: creators / marketing / bizdev
 CREATORS_KW = {
@@ -76,8 +89,65 @@ def pick_top(items, bucket, n, already_used, scorer):
                 break
     return chosen
 
-def main(outfile_format="md"):
-    os.makedirs("out", exist_ok=True)
+
+def _default_sections() -> Sequence[Section]:
+    return (
+        ("GenerativeAI creators", "creators", "creators"),
+        ("Marketing / fun", "marketing", "marketing"),
+        ("Biznes & dev", "bizdev", "bizdev"),
+    )
+
+
+def generate_sections(items: Sequence[dict], per_bucket: int) -> Tuple[List[Tuple[str, List[str]]], List[str]]:
+    """Return rendered sections and the links that were actually published."""
+
+    used_links = set()
+    rendered: List[Tuple[str, List[str]]] = []
+    published_links: List[str] = []
+
+    for section_title, bucket, style in _default_sections():
+        top_items = pick_top(items, bucket, per_bucket, already_used=used_links, scorer=score_for)
+        published_links.extend([it["link"] for it in top_items])
+        posts = [format_post(it, style=style) for it in top_items]
+        rendered.append((section_title, posts))
+
+    return rendered, published_links
+
+
+def load_config(path: Path = CONFIG_PATH) -> dict:
+    """Load configuration from ``sources.yml`` if it exists."""
+
+    if yaml is None or not path.exists():
+        return {}
+
+    with path.open("r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh) or {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    return data
+
+
+def per_bucket_from_config(config: dict | None) -> int:
+    """Extract and validate the per-bucket value from the loaded config."""
+
+    if not isinstance(config, dict):
+        return N_PER_BUCKET
+
+    newsletter = config.get("newsletter") or {}
+    if isinstance(newsletter, dict):
+        value = newsletter.get("per_bucket")
+        try:
+            per_bucket = int(value)
+        except (TypeError, ValueError):
+            return N_PER_BUCKET
+        return max(1, per_bucket)
+
+    return N_PER_BUCKET
+
+def main(outfile_format="md", out_dir: str = "out", site_dir: str = "site"):
+    os.makedirs(out_dir, exist_ok=True)
     items = gather()
     if not items:
         print("Brak nowych artykułów w ostatnich 24h.")
@@ -85,21 +155,11 @@ def main(outfile_format="md"):
 
     today = datetime.now().strftime("%Y-%m-%d")
     title = f"Newsletter AI — Machine Cinema Poland — {today}"
-    out_path = f"out/{today}_ALL.{outfile_format}"
+    out_path = os.path.join(out_dir, f"{today}_ALL.{outfile_format}")
 
-    # sekcje i styl hooków (bez pytań)
-    sections = [
-        ("GenerativeAI creators", "creators", "creators"),
-        ("Marketing / fun", "marketing", "marketing"),
-        ("Biznes & dev", "bizdev", "bizdev"),
-    ]
-
-    used = set()
-    rendered = []
-    for section_title, bucket, style in sections:
-        top = pick_top(items, bucket, 5, already_used=used, scorer=score_for)
-        posts = [format_post(it, style=style) for it in top]
-        rendered.append((section_title, posts))
+    config = load_config()
+    per_bucket = per_bucket_from_config(config)
+    rendered, published_links = generate_sections(items, per_bucket)
 
     # zapis jednego pliku
     if outfile_format == "md":
@@ -122,7 +182,7 @@ def main(outfile_format="md"):
                     idx += 1
 
     # zapamiętaj, co wykorzystano
-    save_seen([it["link"] for it in items])
+    save_seen_links(published_links)
 
     # --- Static HTML builder (no Jekyll required) ---
     TZ_PL = ZoneInfo("Europe/Warsaw")
@@ -182,13 +242,13 @@ def main(outfile_format="md"):
 </html>"""
 
     html = build_html(today, out_path)
-    os.makedirs("site", exist_ok=True)
-    dated = os.path.join("site", f"{today}.html")
+    os.makedirs(site_dir, exist_ok=True)
+    dated = os.path.join(site_dir, f"{today}.html")
     with open(dated, "w", encoding="utf-8") as f:
         f.write(html)
-    with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"\u2714 Zapisano: {dated} oraz site/index.html")
+    print(f"\u2714 Zapisano: {dated} oraz {os.path.join(site_dir, 'index.html')}")
 
 if __name__ == "__main__":
     main(outfile_format="md")
