@@ -66,6 +66,8 @@ def test_curated_mode_generates_outputs(temp_env):
     out_md = temp_env / "out" / f"{result['date']}_ALL.md"
     assert out_md.exists()
     assert (temp_env / "site" / "index.html").exists()
+    assert (temp_env / "index.html").exists()
+    assert (temp_env / ".nojekyll").exists()
     seen_path = temp_env / ".cache" / "seen.json"
     cache_data = json.loads(seen_path.read_text(encoding="utf-8"))
     assert len(cache_data["rolling"]) == result["published_count"]

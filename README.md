@@ -66,6 +66,7 @@ Outputs:
 - Markdown digest: `out/YYYY-MM-DD_ALL.md`
 - HTML issue + latest copy: `site/YYYY-MM-DD.html`, `site/index.html`
 - Archive index: `site/archive.html`
+- Root redirects for GitHub Pages: `index.html` → `site/index.html`, `archive.html` → `site/archive.html`
 
 ## Archive and navigation
 
@@ -79,11 +80,13 @@ The cache stores only the links that were actually published. Configure scope an
 
 ### GitHub Pages deployment
 
-`.github/workflows/pages.yml` builds the newsletter on push to `main` and publishes `site/` to GitHub Pages.
+`.github/workflows/pages.yml` builds the newsletter on push to `main` or `work` and publishes the `site/` directory through the
+GitHub Pages deploy action. Leave the repository Pages settings on “GitHub Actions”; the committed `.nojekyll` files and root
+redirects ensure visitors land on the generated HTML even if the settings are switched to “Deploy from branch”.
 
 ### Daily cron build
 
-`.github/workflows/daily-0900.yml` runs at 07:00 and 08:00 UTC to cover daylight saving. The job installs dependencies, runs `python generate_all.py --mode curated`, commits any updated `out/` and `site/` assets, and reuses the Pages workflow for deployment. Optional SMTP secrets can trigger email delivery.
+`.github/workflows/daily-0900.yml` runs at 07:00 and 08:00 UTC to cover daylight saving. The job installs dependencies, runs `python generate_all.py --mode live --verbose` (falling back to curated data when present), commits any updated `out/` and `site/` assets, and reuses the Pages workflow for deployment. Optional SMTP secrets can trigger email delivery.
 
 ### Email delivery (optional)
 

@@ -22,8 +22,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TARGET_BRANCH: ${{ github.ref_name != '' && github.ref_name || github.event.repository.default_branch }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,13 +40,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Generate newsletter
-        run: python generate_all.py --mode curated
+        run: python generate_all.py --mode live --verbose
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: daily newsletter update"
-          branch: work
+          branch: ${{ env.TARGET_BRANCH }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -108,6 +108,7 @@ def write_outputs(
     (site_dir / "index.html").write_text(html_content, encoding="utf-8")
     LOGGER.info("Saved newsletter HTML to %s and site/index.html", daily_path)
     _update_archive(site_dir, day)
+    _write_public_redirects(site_dir)
 
 
 def _update_archive(site_dir: Path, day: date) -> None:
@@ -161,3 +162,31 @@ def _is_date_like(value: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def _write_public_redirects(site_dir: Path) -> None:
+    """Ensure repository root forwards to the generated site."""
+
+    base_dir = site_dir.parent
+    base_dir.mkdir(parents=True, exist_ok=True)
+    (site_dir / ".nojekyll").write_text("", encoding="utf-8")
+    (base_dir / ".nojekyll").write_text("", encoding="utf-8")
+    redirects = {
+        base_dir / "index.html": Path("site/index.html"),
+        base_dir / "archive.html": Path("site/archive.html"),
+    }
+    template = """<!DOCTYPE html>
+<html lang=\"pl\">
+  <head>
+    <meta charset=\"utf-8\" />
+    <meta http-equiv=\"refresh\" content=\"0; url={target}\" />
+    <link rel=\"canonical\" href={target!r} />
+    <title>Machine Cinema AI Newsletter</title>
+  </head>
+  <body>
+    <p>Przekierowanie do <a href={target!r}>{target}</a>…</p>
+  </body>
+</html>
+"""
+    for destination, target in redirects.items():
+        destination.write_text(template.format(target=target.as_posix()), encoding="utf-8")
