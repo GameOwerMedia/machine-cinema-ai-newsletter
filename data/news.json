@@ -1,0 +1,18 @@
+{
+  "articles": [
+    {
+      "title": "Sample AI News Article for Testing",
+      "link": "https://example.com/ai-news-test",
+      "summary": "This is a sample article for testing the newsletter generation system.",
+      "published": "2025-10-25T10:00:00Z",
+      "source": "test"
+    },
+    {
+      "title": "Polish AI Market Growth in 2025",
+      "link": "https://example.com/polish-ai-growth",
+      "summary": "Analysis of the artificial intelligence market growth in Poland during 2025 with focus on startup investments.",
+      "published": "2025-10-25T09:30:00Z",
+      "source": "test"
+    }
+  ]
+}

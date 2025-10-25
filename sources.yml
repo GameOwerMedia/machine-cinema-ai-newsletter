@@ -1,0 +1,26 @@
+# Newsletter configuration
+newsletter:
+  per_bucket: 5
+  top_of_day: false
+
+# Data sources
+feeds:
+  curated: data/news.json
+  rss:
+    - https://news.google.com/rss/search?q=AI+poland
+    - https://www.spidersweb.pl/feed
+
+# Keyword weights for categorization
+keywords:
+  creators:
+    - prompt: 2
+    - workflow: 2
+    - midjourney: 3
+  marketing:
+    - campaign: 2  
+    - viral: 2
+    - tiktok: 3
+  bizdev:
+    - funding: 2
+    - regulation: 2
+    - enterprise: 3

@@ -23,8 +23,6 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        # Install feedparser alternative if needed
-        pip install feedparser==6.0.10
 
     - name: Generate daily newsletter
       run: |
@@ -42,7 +40,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./machine-cinema-ai-newsletter/site
+        publish_dir: ./site  # ← FIXED PATH
         keep_files: true  # Keep previous newsletters
 
     - name: Upload newsletter artifacts
