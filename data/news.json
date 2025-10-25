@@ -1,0 +1,107 @@
+[
+  {
+    "title": "Runway Gen-3 Alpha adds storyboard workflow for creators",
+    "summary": "Runway expands its Gen-3 Alpha toolkit with a storyboard workflow and new camera presets for faster video generation.",
+    "link": "https://runwayml.com/blog/gen-3-alpha-storyboard",
+    "source": "Runway Blog",
+    "published": "2025-01-14T08:45:00+00:00"
+  },
+  {
+    "title": "Krea introduces LoRA remix tools inside its SDXL editor",
+    "summary": "Krea's SDXL editor now supports LoRA remixing, enabling artists to blend styles without leaving the workflow.",
+    "link": "https://krea.ai/blog/lora-remix-tools",
+    "source": "Krea",
+    "published": "2025-01-14T10:20:00+00:00"
+  },
+  {
+    "title": "ComfyUI community ships open-source controlnet for Veo-style shots",
+    "summary": "The ComfyUI community has released a Veo-inspired controlnet pack to simplify cinematic framing in image-to-video projects.",
+    "link": "https://community.comfyui.org/posts/veo-controlnet-pack",
+    "source": "ComfyUI Community",
+    "published": "2025-01-13T18:30:00+00:00"
+  },
+  {
+    "title": "Pika adds multi-track audio editor for AI video workflows",
+    "summary": "Pika's latest update ships a multi-track audio editor with automatic ducking tuned for AI-generated video campaigns.",
+    "link": "https://pika.art/news/multi-track-audio-editor",
+    "source": "Pika",
+    "published": "2025-01-14T06:10:00+00:00"
+  },
+  {
+    "title": "Stable Diffusion XL gains new IP-Adapter for portrait lighting",
+    "summary": "Stability AI's SDXL release comes with an IP-Adapter tuned for portrait lighting and cleaner outpainting boundaries.",
+    "link": "https://stability.ai/blog/sdxl-ip-adapter-portrait",
+    "source": "Stability AI",
+    "published": "2025-01-13T22:05:00+00:00"
+  },
+  {
+    "title": "TikTok partners with creators on AI-generated ad campaign",
+    "summary": "TikTok's marketing team collaborates with influencers on an AI-generated ad campaign showcasing new creative workflows.",
+    "link": "https://newsroom.tiktok.com/en-us/ai-generated-ad-campaign",
+    "source": "TikTok",
+    "published": "2025-01-14T09:15:00+00:00"
+  },
+  {
+    "title": "Instagram experiments with generative meme templates for brands",
+    "summary": "Instagram is piloting generative meme templates to help brands launch viral social campaigns faster.",
+    "link": "https://about.instagram.com/blog/announcements/generative-meme-templates",
+    "source": "Instagram",
+    "published": "2025-01-13T16:40:00+00:00"
+  },
+  {
+    "title": "Viral marketing playbook: how agencies use Gen-3 for product reveals",
+    "summary": "Creative agency CMO Lab shares a case study on using Runway Gen-3 for immersive product reveal campaigns.",
+    "link": "https://cmolab.co/blog/runway-gen3-product-reveal",
+    "source": "CMO Lab",
+    "published": "2025-01-14T05:50:00+00:00"
+  },
+  {
+    "title": "YouTube launches brand-safe AI music generator for advertisers",
+    "summary": "YouTube introduces a brand-safe AI music generator with campaign presets and licensing built into the workflow.",
+    "link": "https://blog.youtube/inside-youtube/brand-safe-ai-music-generator",
+    "source": "YouTube Blog",
+    "published": "2025-01-13T20:25:00+00:00"
+  },
+  {
+    "title": "X rolls out campaign analytics dashboard for AI-generated posts",
+    "summary": "X's new analytics dashboard tracks the performance of AI-generated posts across influencer partnerships and paid ads.",
+    "link": "https://blog.x.com/updates/ai-campaign-analytics",
+    "source": "X",
+    "published": "2025-01-13T21:55:00+00:00"
+  },
+  {
+    "title": "NVIDIA invests in Polish data center focused on generative AI",
+    "summary": "NVIDIA backs a new Polish data center designed for generative AI workloads with high-throughput networking.",
+    "link": "https://blogs.nvidia.com/blog/polish-generative-ai-data-center",
+    "source": "NVIDIA Blog",
+    "published": "2025-01-14T07:05:00+00:00"
+  },
+  {
+    "title": "EU AI Act guidance released for enterprise compliance teams",
+    "summary": "The European Commission publishes detailed guidance to help enterprise compliance teams prepare for the EU AI Act.",
+    "link": "https://europa.eu/newsroom/ai-act-enterprise-compliance",
+    "source": "European Commission",
+    "published": "2025-01-13T19:45:00+00:00"
+  },
+  {
+    "title": "Cloud provider unveils low-latency API for real-time RAG video",
+    "summary": "CloudScale launches a low-latency API optimized for real-time RAG video assistants with enterprise SLAs.",
+    "link": "https://cloudscale.com/blog/low-latency-rag-video-api",
+    "source": "CloudScale",
+    "published": "2025-01-14T04:35:00+00:00"
+  },
+  {
+    "title": "Venture round boosts Polish startup building AI governance stack",
+    "summary": "Warsaw-based startup PolicyGrid secures Series A funding to expand its AI governance and compliance platform.",
+    "link": "https://policygrid.ai/news/series-a-announcement",
+    "source": "PolicyGrid",
+    "published": "2025-01-13T15:20:00+00:00"
+  },
+  {
+    "title": "Intel and TSMC discuss joint fab for AI accelerator supply",
+    "summary": "Intel and TSMC confirm talks on a joint fab aimed at securing accelerator supply for enterprise AI demand.",
+    "link": "https://newsroom.intel.com/news/intel-tsmc-joint-fab",
+    "source": "Intel Newsroom",
+    "published": "2025-01-14T03:50:00+00:00"
+  }
+]

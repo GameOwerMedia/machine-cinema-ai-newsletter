@@ -21,6 +21,7 @@ Thumbs.db
 # Project outputs
 out/
 seen_urls.txt
+.cache/
 
 # Editors
 .vscode/
