@@ -19,3 +19,4 @@ minimal:
   - README.md
   - LICENSE
   - .gitignore
+  - CNAME
