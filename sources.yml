@@ -1,0 +1,54 @@
+newsletter:
+  per_bucket: 5
+  mode: segments
+  buckets:
+    creators:
+      label: "GenerativeAI creators"
+      style: "creators"
+      keywords:
+        - prompt
+        - workflow
+        - lora
+        - comfyui
+        - stable diffusion
+        - sdxl
+        - runway
+        - midjourney
+        - video
+    marketing:
+      label: "Marketing / fun"
+      style: "marketing"
+      keywords:
+        - campaign
+        - marketing
+        - ads
+        - reklama
+        - viral
+        - social
+        - tiktok
+        - instagram
+        - youtube
+    bizdev:
+      label: "Biznes & dev"
+      style: "bizdev"
+      keywords:
+        - ustawa
+        - regulacja
+        - funding
+        - inwestycja
+        - governance
+        - enterprise
+        - security
+        - compliance
+        - developer
+curated:
+  path: data/news.json
+live:
+  feeds:
+    - name: Google AI
+      kind: google
+      query: artificial intelligence
+      url: https://news.google.com/rss/search?q=Artificial+Intelligence&hl=en-US&gl=US&ceid=US:en
+    - name: OpenAI Blog
+      kind: rss
+      url: https://openai.com/blog/rss
