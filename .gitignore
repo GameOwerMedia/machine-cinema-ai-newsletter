@@ -25,3 +25,17 @@ seen_urls.txt
 # Editors
 .vscode/
 .idea/
+
+# GitHub Pages (optional - if you want to keep build files)
+# _site/
+# .sass-cache/
+# .jekyll-cache/
+
+# Local test files
+test_output/
+*.log
+
+# API keys and secrets (should be in GitHub Secrets)
+config_secrets.py
+*.key
+*.pem

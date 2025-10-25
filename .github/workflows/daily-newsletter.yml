@@ -1,0 +1,55 @@
+name: Daily AI Newsletter Generation
+
+on:
+  schedule:
+    # Run daily at 09:00 UTC (10:00 Warsaw time)
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  generate-newsletter:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        # Install feedparser alternative if needed
+        pip install feedparser==6.0.10
+
+    - name: Generate daily newsletter
+      run: |
+        cd machine-cinema-ai-newsletter
+        python generate_all.py
+
+    - name: List generated files
+      run: |
+        cd machine-cinema-ai-newsletter
+        ls -la out/ site/
+        echo "--- Latest newsletter ---"
+        head -n 10 out/$(date +%Y-%m-%d)_ALL.md || echo "No newsletter generated today"
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./machine-cinema-ai-newsletter/site
+        keep_files: true  # Keep previous newsletters
+
+    - name: Upload newsletter artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: newsletter-${{ github.run_id }}
+        path: |
+          machine-cinema-ai-newsletter/out/*.md
+          machine-cinema-ai-newsletter/site/*.html
+        retention-days: 7

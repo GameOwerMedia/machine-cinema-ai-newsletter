@@ -1,0 +1,56 @@
+name: Manual Newsletter Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-mode:
+        description: 'Test mode (sample/real)'
+        required: false
+        default: 'sample'
+        type: choice
+        options:
+        - sample
+        - real
+
+jobs:
+  test-newsletter:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Test newsletter generation
+      run: |
+        cd machine-cinema-ai-newsletter
+        echo "Testing newsletter generation..."
+        
+        # Test basic functionality
+        python -c "from fetch_ai_news import gather; print('Articles found:', len(gather()))"
+        python -c "from make_posts import format_post; print('Formatting test OK')"
+        
+        # Generate test newsletter
+        python generate_all.py
+        
+        # Show results
+        echo "--- Generated files ---"
+        ls -la out/ site/
+        echo "--- Latest newsletter preview ---"
+        head -n 15 out/$(date +%Y-%m-%d)_ALL.md || echo "No newsletter generated"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ github.run_id }}
+        path: |
+          machine-cinema-ai-newsletter/out/*.md
+          machine-cinema-ai-newsletter/site/*.html
+        retention-days: 3

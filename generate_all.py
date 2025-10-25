@@ -10,22 +10,76 @@ N_PER_BUCKET = 5
 
 # miękkie słowa-klucze do tria: creators / marketing / bizdev
 CREATORS_KW = {
-    "prompt","workflow","lora","style","comfyui","stable diffusion","sdxl",
-    "veo","runway","kling","pika","krea","midjourney","gen-3","controlnet",
-    "inpainting","outpainting","frame","storyboard","editor","video generation",
-    "image-to-video","ip-adapter","rag video","image","video","audio","media"
+    # Tools & Platforms
+    "stable diffusion", "midjourney", "runway", "comfyui", "automatic1111",
+    "dall-e", "chatgpt", "gpt-4", "claude", "leonardo", "krea", "tensor",
+    "pika", "veo", "kling", "sora", "luma", "animatediff", "openai", "anthropic",
+    
+    # Techniques
+    "prompt", "prompt engineering", "lora", "controlnet", "inpainting",
+    "outpainting", "img2img", "txt2img", "video2video", "style transfer",
+    "fine-tuning", "dreambooth", "embeddings", "workflow", "pipeline",
+    
+    # Media Types
+    "obraz", "image", "wideo", "video", "audio", "dźwięk", "muzyka",
+    "3d", "model", "animacja", "generative", "gen-3", "gen-4", "multimodal",
+    
+    # Polish specific for creators
+    "twórca", "twórcy", "kreatywny", "grafika", "projekt", "design", "artysta",
+    "sztuka", "art", "creative", "content", "treść", "kreator", "generowanie",
+    "projektant", "ilustrator", "fotograf", "filmowiec", "montaż", "postprodukcja"
 }
+
 MARKETING_KW = {
-    "campaign","marketing","ads","reklama","brand","viral","trend",
-    "influencer","case study","cmo","konkurs","social","mem","fun","creative",
-    "tiktok","instagram","youtube","x "
+    # Campaign Types
+    "kampania", "campaign", "marketing", "reklama", "ad", "ads", "advert",
+    "promocja", "promotion", "brand", "branding", "wizerunek", "pr",
+    
+    # Social Media
+    "tiktok", "instagram", "facebook", "youtube", "x ", "twitter", "linkedin",
+    "social media", "social", "post", "story", "reels", "short", "shorts",
+    
+    # Trends & Virality
+    "viral", "trend", "hot", "popular", "engagement", "interakcja", "engagement",
+    "zasięg", "reach", "audience", "publiczność", "followers", "subscribers",
+    
+    # Analytics & Metrics
+    "roi", "conversion", "ctr", "click", "impression", "analytics", "metrics",
+    "statistics", "data", "insights", "performance", "results", "effectiveness",
+    
+    # Polish specific marketing
+    "influencer", "influencerka", "content creator", "twórca treści", "bloger",
+    "vloger", "youtuber", "tiktoker", "case study", "przypadek", "studium",
+    "success", "sukces", "konkurs", "competition", "giveaway", "nagroda",
+    "fun", "zabawa", "rozrywka", "entertainment", "humor", "mem", "meme"
 }
+
 BIZDEV_KW = {
-    "ustawa","regulacja","prawo","funding","seed","series","ipo","m&a",
-    "nvidia","tsmc","intel","amd","factory","fabryka","data center",
-    "cloud","sla","api","sdk","benchmark","latency","throughput","token",
-    "enterprise","security","compliance","eu ai act","governance","llm",
-    "invest","inwestycja","rynek","biznes","deweloper","developer","stack"
+    # Legal & Regulations
+    "ustawa", "regulacja", "prawo", "law", "regulation", "compliance", "gdpr",
+    "privacy", "prywatność", "license", "licencja", "copyright", "autorskie",
+    "patent", "ip", "intellectual property", "własność intelektualna",
+    
+    # Business & Finance
+    "funding", "investment", "inwestycja", "venture", "vc", "seed", "series",
+    "ipo", "stock", "giełda", "exchange", "m&a", "acquisition", "merger",
+    "finanse", "finance", "revenue", "przychód", "profit", "zysk", "loss", "strata",
+    
+    # Enterprise & Development
+    "enterprise", "biznes", "business", "corporation", "firma", "company",
+    "startup", "scaleup", "sme", "msme", "deweloper", "developer", "programista",
+    "software", "oprogramowanie", "api", "sdk", "framework", "biblioteka",
+    
+    # Infrastructure & Cloud
+    "cloud", "chmura", "aws", "azure", "gcp", "google cloud", "server", "serwer",
+    "data center", "centrum danych", "hosting", "storage", "przechowywanie",
+    "database", "baza danych", "sql", "nosql", "big data", "ai infrastructure",
+    
+    # Polish specific business
+    "polski", "polska", "warszawa", "kraków", "wrocław", "poznań", "gdańsk",
+    "poland", "europe", "europa", "ue", "unia europejska", "grant", "dotacja",
+    "subsidy", "fundusz", "fund", "accelerator", "akcelerator", "incubator", "inkubator",
+    "government", "rząd", "ministry", "ministerstwo", "digital", "cyfryzacja"
 }
 
 def score_for(bucket, item):
@@ -188,7 +242,7 @@ def main(outfile_format="md"):
         f.write(html)
     with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"\u2714 Zapisano: {dated} oraz site/index.html")
+    print(f"Zapisano: {dated} oraz site/index.html")
 
 if __name__ == "__main__":
     main(outfile_format="md")
