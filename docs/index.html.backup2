@@ -1,0 +1,145 @@
+---
+layout: default
+title: Machine Cinema Poland - Daily AI Newsletter
+description: Codzienny przegląd najnowszych wiadomości AI ze świata
+---
+
+<header class="header">
+  <h1 class="title">
+    🧠 Machine Cinema Poland
+    <span class="subtitle">– Daily AI Newsletter</span>
+  </h1>
+  <p class="tagline">Codzienny przegląd AI</p>
+  <p class="date">{{ site.time | date: "%Y-%m-%d" }}</p>
+</header>
+
+<main class="main">
+  <section class="newsletter">
+    <h1>Newsletter AI — Machine Cinema Poland — {{ site.time | date: "%Y-%m-%d" }}</h1>
+    
+    <h2>GenerativeAI creators</h2>
+    <ol>
+      <li>
+        <p>[AI] Nowe narzędzia AI w Midjourney v6 - rewolucja w generowaniu obrazów — workflow i praktyka<br>
+        Midjourney wprowadza nową wersję swojego narzędzia AI z ulepszonym generowaniem obrazów i lepszym zrozumieniem promptów w języku polskim.<br>
+        LINK: https://www.spidersweb.pl/2024/10/midjourney-v6-nowe-funkcje.html (Źródło: spidersweb.pl)</p>
+      </li>
+      <li>
+        <p>[AI] Adobe Firefly 3: nowe możliwości dla grafików i projektantów — workflow i praktyka<br>
+        Adobe prezentuje kolejną generację narzędzi AI dla kreatywnych profesjonalistów, z naciskiem na polski rynek kreatywny.<br>
+        LINK: https://www.computerworld.pl/news/Adobe-Firefly-3-premiera (Źródło: computerworld.pl)</p>
+      </li>
+      <li>
+        <p>[AI] AI w kampaniach marketingowych: jak polskie firmy wykorzystują ChatGPT — workflow i praktyka<br>
+        Case study polskich marek, które skutecznie wdrożyły sztuczną inteligencję do automatyzacji kampanii reklamowych i content marketingu.<br>
+        LINK: https://www.antyweb.pl/ai-marketing-polskie-firmy (Źródło: antyweb.pl)</p>
+      </li>
+      <li>
+        <p>[AI] Polskie fundusze VC inwestują 500M zł w startupy AI w 2025 roku — workflow i praktyka<br>
+        Reekordowy rok dla polskiego rynku inwestycji w sztuczną inteligencję - przegląd największych rund fundingowych i perspektywy na 2026.<br>
+        LINK: https://news.google.com/pl/investycje-ai-polska (Źródło: news.google.com)</p>
+      </li>
+      <li>
+        <p>[AI] UE finalizuje Artificial Intelligence Act: co to oznacza dla polskich startupów — workflow i praktyka<br>
+        Kompleksowy przewodnik po nowych regulacjach AI w Unii Europejskiej i ich wpływie na polski rynek technologiczny i inwestycje.<br>
+        LINK: https://www.benchmark.pl/eu-ai-act-polskie-startupy (Źródło: benchmark.pl)</p>
+      </li>
+    </ol>
+
+    <h2>Marketing / fun</h2>
+    <ol start="6">
+      <li>
+        <p>[MKT] TikTok AI: nowe narzędzia dla influencerów i brandów — kampanie i trendy<br>
+        TikTok wprowadza zestaw narzędzi AI wspierających tworzenie treści viralowych i automatyzację kampanii dla polskich influencerów.<br>
+        LINK: https://www.dobreprogramy.pl/tiktok-ai-tools (Źródło: dobreprogramy.pl)</p>
+      </li>
+      <li>
+        <p>[MKT] Microsoft Copilot po polsku: jak używać AI w Office 365 — kampanie i trendy<br>
+        Poradnik dla polskich użytkowników pokazujący praktyczne zastosowania AI w pakiecie Microsoft Office z uwzględnieniem specyfiki języka polskiego.<br>
+        LINK: https://www.spidersweb.pl/copilot-office-365-guide (Źródło: spidersweb.pl)</p>
+      </li>
+      <li>
+        <p>[MKT] NVIDIA współpracuje z polskimi uczelniami nad rozwojem AI — kampanie i trendy<br>
+        Porozumienie pomiędzy NVIDIA a czołowymi polskimi politechnikami w zakresie rozwoju infrastruktury AI i programów edukacyjnych.<br>
+        LINK: https://www.computerworld.pl/nvidia-polska-uczelnie (Źródło: computerworld.pl)</p>
+      </li>
+    </ol>
+
+    <h2>Biznes & dev</h2>
+    <p>Brak nowych artykułów w tej kategorii dzisiaj.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <hr>
+  <p>
+    Chcesz wiedzieć więcej? <br>
+    Zajrzyj na stronę 
+    <a href="https://machinecinema.ai/" target="_blank" rel="noopener">Machine Cinema</a>, 
+    sprawdź <a href="https://text.machinecinema.ai/" target="_blank" rel="noopener">wiadomości ze świata</a> 
+    oraz aktualne 
+    <a href="https://luma.com/machinecinema" target="_blank" rel="noopener">oficjalne wydarzenia w Twojej okolicy</a>.
+  </p>
+  <p class="copyright">© {{ site.time | date: "%Y" }} Machine Cinema Poland</p>
+</footer>
+
+<style>
+.header { 
+  text-align: center; 
+  margin-bottom: 2rem; 
+  border-bottom: 2px solid #e5e5e5; 
+  padding-bottom: 1rem; 
+}
+.title { 
+  font-size: 2rem; 
+  margin: 0; 
+  color: #333; 
+}
+.subtitle { 
+  font-size: 1.2rem; 
+  color: #666; 
+  font-weight: normal; 
+}
+.tagline { 
+  font-size: 1.1rem; 
+  color: #888; 
+  margin: 0.5rem 0; 
+}
+.date { 
+  color: #999; 
+  font-size: 0.9rem; 
+}
+
+.newsletter { 
+  max-width: 800px; 
+  margin: 0 auto; 
+  line-height: 1.6; 
+}
+.newsletter h2 { 
+  color: #2b6cb0; 
+  border-bottom: 1px solid #e5e5e5; 
+  padding-bottom: 0.5rem; 
+  margin-top: 2rem; 
+}
+
+.footer { 
+  text-align: center; 
+  margin-top: 3rem; 
+  padding-top: 1rem; 
+  border-top: 1px solid #e5e5e5; 
+  color: #666; 
+  font-size: 0.9rem; 
+}
+.copyright { 
+  color: #999; 
+  margin-top: 1rem; 
+}
+
+a { 
+  color: #2b6cb0; 
+  text-decoration: none; 
+}
+a:hover { 
+  text-decoration: underline; 
+}
+</style>
