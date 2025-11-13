@@ -130,14 +130,14 @@ def pick_top(items, bucket, n, already_used, scorer):
                 break
     return chosen
 
-def main(outfile_format="md"):
+def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_urls=True):
     os.makedirs("out", exist_ok=True)
     items = gather()
     if not items:
         print("Brak nowych artykułów w ostatnich 24h.")
         return
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = date_override or datetime.now().strftime("%Y-%m-%d")
     title = f"Newsletter AI — Machine Cinema Poland — {today}"
     out_path = f"out/{today}_ALL.{outfile_format}"
 
@@ -176,7 +176,8 @@ def main(outfile_format="md"):
                     idx += 1
 
     # zapamiętaj, co wykorzystano
-    save_seen([it["link"] for it in items])
+    if save_seen_urls:
+        save_seen([it["link"] for it in items])
 
     # --- Static HTML builder (no Jekyll required) ---
     TZ_PL = ZoneInfo("Europe/Warsaw")
@@ -236,13 +237,13 @@ def main(outfile_format="md"):
 </html>"""
 
     html = build_html(today, out_path)
-    os.makedirs("site", exist_ok=True)
-    dated = os.path.join("site", f"{today}.html")
+    os.makedirs(site_dir, exist_ok=True)
+    dated = os.path.join(site_dir, f"{today}.html")
     with open(dated, "w", encoding="utf-8") as f:
         f.write(html)
-    with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"Zapisano: {dated} oraz site/index.html")
+    print(f"Zapisano: {dated} oraz {os.path.join(site_dir, 'index.html')}")
 
 if __name__ == "__main__":
     main(outfile_format="md")
