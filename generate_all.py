@@ -1,248 +1,540 @@
-# generate_all.py
-import os
-from datetime import datetime
-from fetch_ai_news import gather, save_seen
-import markdown
-from zoneinfo import ZoneInfo
-from make_posts import format_post
+"""Build the bilingual news dataset consumed by the static front-end."""
 
+import json
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Set, Tuple
+from urllib.parse import urlparse
+
+from dateutil import parser as date_parser
+
+from fetch_ai_news import gather, save_seen
+
+try:  # Optional dependency, falls back gracefully when unavailable
+    from googletrans import Translator  # type: ignore
+except Exception:  # pragma: no cover - optional import guard
+    Translator = None
+
+# Buckets used by the layout
+SECTION_TAGS = ("creators", "marketing", "bizdev")
+
+# How many stories per section
 N_PER_BUCKET = 5
 
-# miękkie słowa-klucze do tria: creators / marketing / bizdev
+# Keyword sets reused from the previous HTML generator. The scoring heuristic
+# stays the same so we can keep a consistent editorial mix.
 CREATORS_KW = {
-    # Tools & Platforms
-    "stable diffusion", "midjourney", "runway", "comfyui", "automatic1111",
-    "dall-e", "chatgpt", "gpt-4", "claude", "leonardo", "krea", "tensor",
-    "pika", "veo", "kling", "sora", "luma", "animatediff", "openai", "anthropic",
-    
-    # Techniques
-    "prompt", "prompt engineering", "lora", "controlnet", "inpainting",
-    "outpainting", "img2img", "txt2img", "video2video", "style transfer",
-    "fine-tuning", "dreambooth", "embeddings", "workflow", "pipeline",
-    
-    # Media Types
-    "obraz", "image", "wideo", "video", "audio", "dźwięk", "muzyka",
-    "3d", "model", "animacja", "generative", "gen-3", "gen-4", "multimodal",
-    
-    # Polish specific for creators
-    "twórca", "twórcy", "kreatywny", "grafika", "projekt", "design", "artysta",
-    "sztuka", "art", "creative", "content", "treść", "kreator", "generowanie",
-    "projektant", "ilustrator", "fotograf", "filmowiec", "montaż", "postprodukcja"
+    "stable diffusion",
+    "midjourney",
+    "runway",
+    "comfyui",
+    "automatic1111",
+    "dall-e",
+    "chatgpt",
+    "gpt-4",
+    "claude",
+    "leonardo",
+    "krea",
+    "tensor",
+    "pika",
+    "veo",
+    "kling",
+    "sora",
+    "luma",
+    "animatediff",
+    "openai",
+    "anthropic",
+    "prompt",
+    "prompt engineering",
+    "lora",
+    "controlnet",
+    "inpainting",
+    "outpainting",
+    "img2img",
+    "txt2img",
+    "video2video",
+    "style transfer",
+    "fine-tuning",
+    "dreambooth",
+    "embeddings",
+    "workflow",
+    "pipeline",
+    "obraz",
+    "image",
+    "wideo",
+    "video",
+    "audio",
+    "dźwięk",
+    "muzyka",
+    "3d",
+    "model",
+    "animacja",
+    "generative",
+    "gen-3",
+    "gen-4",
+    "multimodal",
+    "twórca",
+    "twórcy",
+    "kreatywny",
+    "grafika",
+    "projekt",
+    "design",
+    "artysta",
+    "sztuka",
+    "art",
+    "creative",
+    "content",
+    "treść",
+    "kreator",
+    "generowanie",
+    "projektant",
+    "ilustrator",
+    "fotograf",
+    "filmowiec",
+    "montaż",
+    "postprodukcja",
 }
 
 MARKETING_KW = {
-    # Campaign Types
-    "kampania", "campaign", "marketing", "reklama", "ad", "ads", "advert",
-    "promocja", "promotion", "brand", "branding", "wizerunek", "pr",
-    
-    # Social Media
-    "tiktok", "instagram", "facebook", "youtube", "x ", "twitter", "linkedin",
-    "social media", "social", "post", "story", "reels", "short", "shorts",
-    
-    # Trends & Virality
-    "viral", "trend", "hot", "popular", "engagement", "interakcja", "engagement",
-    "zasięg", "reach", "audience", "publiczność", "followers", "subscribers",
-    
-    # Analytics & Metrics
-    "roi", "conversion", "ctr", "click", "impression", "analytics", "metrics",
-    "statistics", "data", "insights", "performance", "results", "effectiveness",
-    
-    # Polish specific marketing
-    "influencer", "influencerka", "content creator", "twórca treści", "bloger",
-    "vloger", "youtuber", "tiktoker", "case study", "przypadek", "studium",
-    "success", "sukces", "konkurs", "competition", "giveaway", "nagroda",
-    "fun", "zabawa", "rozrywka", "entertainment", "humor", "mem", "meme"
+    "kampania",
+    "campaign",
+    "marketing",
+    "reklama",
+    "ad",
+    "ads",
+    "advert",
+    "promocja",
+    "promotion",
+    "brand",
+    "branding",
+    "wizerunek",
+    "pr",
+    "tiktok",
+    "instagram",
+    "facebook",
+    "youtube",
+    "x ",
+    "twitter",
+    "linkedin",
+    "social media",
+    "social",
+    "post",
+    "story",
+    "reels",
+    "short",
+    "shorts",
+    "viral",
+    "trend",
+    "hot",
+    "popular",
+    "engagement",
+    "interakcja",
+    "zasięg",
+    "reach",
+    "audience",
+    "publiczność",
+    "followers",
+    "subscribers",
+    "roi",
+    "conversion",
+    "ctr",
+    "click",
+    "impression",
+    "analytics",
+    "metrics",
+    "statistics",
+    "data",
+    "insights",
+    "performance",
+    "results",
+    "effectiveness",
+    "influencer",
+    "influencerka",
+    "content creator",
+    "twórca treści",
+    "bloger",
+    "vloger",
+    "youtuber",
+    "tiktoker",
+    "case study",
+    "przypadek",
+    "studium",
+    "success",
+    "sukces",
+    "konkurs",
+    "competition",
+    "giveaway",
+    "nagroda",
+    "fun",
+    "zabawa",
+    "rozrywka",
+    "entertainment",
+    "humor",
+    "mem",
+    "meme",
 }
 
 BIZDEV_KW = {
-    # Legal & Regulations
-    "ustawa", "regulacja", "prawo", "law", "regulation", "compliance", "gdpr",
-    "privacy", "prywatność", "license", "licencja", "copyright", "autorskie",
-    "patent", "ip", "intellectual property", "własność intelektualna",
-    
-    # Business & Finance
-    "funding", "investment", "inwestycja", "venture", "vc", "seed", "series",
-    "ipo", "stock", "giełda", "exchange", "m&a", "acquisition", "merger",
-    "finanse", "finance", "revenue", "przychód", "profit", "zysk", "loss", "strata",
-    
-    # Enterprise & Development
-    "enterprise", "biznes", "business", "corporation", "firma", "company",
-    "startup", "scaleup", "sme", "msme", "deweloper", "developer", "programista",
-    "software", "oprogramowanie", "api", "sdk", "framework", "biblioteka",
-    
-    # Infrastructure & Cloud
-    "cloud", "chmura", "aws", "azure", "gcp", "google cloud", "server", "serwer",
-    "data center", "centrum danych", "hosting", "storage", "przechowywanie",
-    "database", "baza danych", "sql", "nosql", "big data", "ai infrastructure",
-    
-    # Polish specific business
-    "polski", "polska", "warszawa", "kraków", "wrocław", "poznań", "gdańsk",
-    "poland", "europe", "europa", "ue", "unia europejska", "grant", "dotacja",
-    "subsidy", "fundusz", "fund", "accelerator", "akcelerator", "incubator", "inkubator",
-    "government", "rząd", "ministry", "ministerstwo", "digital", "cyfryzacja"
+    "ustawa",
+    "regulacja",
+    "prawo",
+    "law",
+    "regulation",
+    "compliance",
+    "gdpr",
+    "privacy",
+    "prywatność",
+    "license",
+    "licencja",
+    "copyright",
+    "autorskie",
+    "patent",
+    "ip",
+    "intellectual property",
+    "własność intelektualna",
+    "funding",
+    "investment",
+    "inwestycja",
+    "venture",
+    "vc",
+    "seed",
+    "series",
+    "ipo",
+    "stock",
+    "giełda",
+    "exchange",
+    "m&a",
+    "acquisition",
+    "merger",
+    "finanse",
+    "finance",
+    "revenue",
+    "przychód",
+    "profit",
+    "zysk",
+    "loss",
+    "strata",
+    "enterprise",
+    "biznes",
+    "business",
+    "corporation",
+    "firma",
+    "company",
+    "startup",
+    "scaleup",
+    "sme",
+    "msme",
+    "deweloper",
+    "developer",
+    "programista",
+    "software",
+    "oprogramowanie",
+    "api",
+    "sdk",
+    "framework",
+    "biblioteka",
+    "cloud",
+    "chmura",
+    "aws",
+    "azure",
+    "gcp",
+    "google cloud",
+    "server",
+    "serwer",
+    "data center",
+    "centrum danych",
+    "hosting",
+    "storage",
+    "przechowywanie",
+    "database",
+    "baza danych",
+    "sql",
+    "nosql",
+    "big data",
+    "ai infrastructure",
+    "polski",
+    "polska",
+    "warszawa",
+    "kraków",
+    "wrocław",
+    "poznań",
+    "gdańsk",
+    "poland",
+    "europe",
+    "europa",
+    "ue",
+    "unia europejska",
+    "grant",
+    "dotacja",
+    "subsidy",
+    "fundusz",
+    "fund",
+    "accelerator",
+    "akcelerator",
+    "incubator",
+    "inkubator",
+    "government",
+    "rząd",
+    "ministry",
+    "ministerstwo",
+    "digital",
+    "cyfryzacja",
 }
 
-def score_for(bucket, item):
+DEFAULT_IMAGE = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80"
+
+OUTPUT_DATA_PATH = Path("data/news.json")
+OUTPUT_DOCS_PATH = Path("docs/data/news.json")
+
+_TRANSLATOR = None
+
+
+def _get_translator():
+    global _TRANSLATOR
+    if _TRANSLATOR is False:
+        return None
+    if _TRANSLATOR is None and Translator is not None:
+        try:
+            _TRANSLATOR = Translator()
+        except Exception:
+            _TRANSLATOR = False
+    return None if _TRANSLATOR is False else _TRANSLATOR
+
+
+def _translate_batch(texts: Sequence[str], dest: str = "en") -> List[Optional[str]]:
+    translator = _get_translator()
+    if not texts:
+        return []
+    if translator is None:
+        return [None] * len(texts)
+
+    translated_texts: List[Optional[str]] = []
+    for text in texts:
+        try:
+            result = translator.translate(text, dest=dest)
+        except Exception:
+            translated_texts.append(None)
+            continue
+        translated_texts.append(getattr(result, "text", None))
+    return translated_texts
+
+
+def _ensure_translations(items: List[Dict[str, str]]) -> None:
+    texts: List[str] = []
+    lookup: List[Tuple[int, str]] = []
+    for idx, item in enumerate(items):
+        for key in ("title", "summary"):
+            value = (item.get(key) or "").strip()
+            if value:
+                texts.append(value)
+                lookup.append((idx, key))
+
+    translations = _translate_batch(texts, dest="en") if texts else []
+
+    for (idx, key), translated in zip(lookup, translations):
+        english_value = translated or (items[idx].get(key) or "")
+        items[idx][f"{key}_en"] = english_value
+
+
+def score_for(bucket: str, item: Dict[str, str]) -> float:
     title = (item.get("title") or "")
     summ = (item.get("summary") or "")
     text = f"{title} {summ}".lower()
-    s = 0
+    score = 0.0
     if bucket == "creators":
-        for k in CREATORS_KW:
-            if k in text: s += 2
+        keywords = CREATORS_KW
     elif bucket == "marketing":
-        for k in MARKETING_KW:
-            if k in text: s += 2
-    else:  # bizdev
-        for k in BIZDEV_KW:
-            if k in text: s += 2
-    s += 1 if item.get("summary") else 0
-    s -= min(len(title), 140)/200.0
-    return s
+        keywords = MARKETING_KW
+    else:
+        keywords = BIZDEV_KW
 
-def pick_top(items, bucket, n, already_used, scorer):
+    for keyword in keywords:
+        if keyword in text:
+            score += 2
+    if item.get("summary"):
+        score += 1
+    score -= min(len(title), 140) / 200.0
+    return score
+
+
+def pick_top(
+    items: Sequence[Dict[str, str]],
+    bucket: str,
+    n: int,
+    already_used: Set[str],
+    scorer,
+) -> List[Dict[str, str]]:
     ranked = sorted(items, key=lambda it: scorer(bucket, it), reverse=True)
-    chosen, seen_domains = [], set()
+    chosen: List[Dict[str, str]] = []
+    seen_domains: Set[str] = set()
 
-    # 1) wybór pod bucket + różnorodność domen + brak duplikatów
-    for it in ranked:
-        if it["link"] in already_used:
+    for article in ranked:
+        link = article.get("link") or ""
+        if not link or link in already_used:
             continue
-        dom = (it["link"].split("/")[2] if "://" in it["link"] else it["link"]).lower()
-        if dom in seen_domains:
+        domain = link.split("/")[2] if "://" in link else link
+        domain = domain.lower()
+        if domain in seen_domains:
             continue
-        seen_domains.add(dom)
-        chosen.append(it)
-        already_used.add(it["link"])
+        seen_domains.add(domain)
+        chosen.append(article)
+        already_used.add(link)
         if len(chosen) >= n:
             break
 
-    # 2) BACKFILL: dobierz z reszty świeżych (bez limitu domen), nadal bez duplikatów
     if len(chosen) < n:
         fallback = sorted(
-            [x for x in items if x["link"] not in already_used],
-            key=lambda x: len(x.get("title",""))
+            [x for x in items if (x.get("link") or "") not in already_used],
+            key=lambda x: len(x.get("title", "")),
         )
-        for it in fallback:
-            chosen.append(it)
-            already_used.add(it["link"])
+        for article in fallback:
+            link = article.get("link") or ""
+            if not link:
+                continue
+            already_used.add(link)
+            chosen.append(article)
             if len(chosen) >= n:
                 break
+
     return chosen
 
-def main(outfile_format="md"):
-    os.makedirs("out", exist_ok=True)
+
+def _slugify(value: str) -> str:
+    value = value.lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    value = re.sub(r"-+", "-", value).strip("-")
+    return value or "article"
+
+
+def _as_iso(value: str) -> str:
+    try:
+        parsed = date_parser.parse(value)
+    except (ValueError, TypeError):
+        return datetime.now(timezone.utc).isoformat()
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc).isoformat()
+
+
+def _domain_root(url: str) -> str:
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return url
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}"
+    if parsed.netloc:
+        return f"https://{parsed.netloc}"
+    return url
+
+
+def _prepare_articles(raw_items: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    for item in raw_items:
+        if not item.get("image"):
+            item["image"] = DEFAULT_IMAGE
+        if "published" in item:
+            item["published"] = _as_iso(item["published"])
+    raw_items.sort(key=lambda it: it.get("published", ""), reverse=True)
+    return raw_items
+
+
+def build_payload(raw_items: List[Dict[str, str]]) -> List[Dict[str, object]]:
+    if not raw_items:
+        return []
+
+    working = _prepare_articles(list(raw_items))
+    _ensure_translations(working)
+
+    already_used: Set[str] = set()
+
+    # Mark hero story
+    hero = working[0]
+    hero.setdefault("tags", set()).add("hero")
+    hero_link = hero.get("link")
+    if hero_link:
+        already_used.add(hero_link)
+
+    # Mark latest-in-brief block (excluding hero)
+    for article in working[1:7]:
+        link = article.get("link")
+        if not link:
+            continue
+        article.setdefault("tags", set()).add("brief")
+        already_used.add(link)
+
+    # Section buckets
+    for bucket in SECTION_TAGS:
+        picks = pick_top(working, bucket, N_PER_BUCKET, already_used=already_used, scorer=score_for)
+        for article in picks:
+            article.setdefault("tags", set()).add(bucket)
+
+    payload: List[Dict[str, object]] = []
+    used_ids: Set[str] = set()
+    for article in working:
+        link = article.get("link") or ""
+        title = article.get("title") or ""
+        base_id = _slugify(title or link)
+        candidate = base_id
+        index = 2
+        while candidate in used_ids:
+            candidate = f"{base_id}-{index}"
+            index += 1
+        used_ids.add(candidate)
+
+        tags = article.get("tags") or set()
+        if isinstance(tags, set):
+            tags = sorted(tags)
+
+        payload.append(
+            {
+                "id": candidate,
+                "source": article.get("source") or _domain_root(link),
+                "sourceUrl": _domain_root(link),
+                "title": title,
+                "summary": article.get("summary") or "",
+                "title_en": article.get("title_en") or title,
+                "summary_en": article.get("summary_en") or article.get("summary") or "",
+                "language": "pl",
+                "publishedAt": article.get("published") or datetime.now(timezone.utc).isoformat(),
+                "url": link,
+                "imageUrl": article.get("image") or DEFAULT_IMAGE,
+                "tags": tags,
+            }
+        )
+    return payload
+
+
+def write_payload(payload: List[Dict[str, object]], *, save_seen_urls: bool = True) -> None:
+    OUTPUT_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DOCS_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(OUTPUT_DATA_PATH, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, ensure_ascii=False, indent=2)
+
+    with open(OUTPUT_DOCS_PATH, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, ensure_ascii=False, indent=2)
+
+    if save_seen_urls:
+        save_seen([item.get("url", "") for item in payload if item.get("url")])
+
+
+def generate(save_seen_urls: bool = True) -> List[Dict[str, object]]:
     items = gather()
-    if not items:
+    payload = build_payload(items)
+    if not payload:
+        return []
+    write_payload(payload, save_seen_urls=save_seen_urls)
+    return payload
+
+
+def main() -> None:
+    payload = generate(save_seen_urls=True)
+    if not payload:
         print("Brak nowych artykułów w ostatnich 24h.")
         return
+    print(f"Zapisano {len(payload)} artykułów do {OUTPUT_DATA_PATH}")
 
-    today = datetime.now().strftime("%Y-%m-%d")
-    title = f"Newsletter AI — Machine Cinema Poland — {today}"
-    out_path = f"out/{today}_ALL.{outfile_format}"
-
-    # sekcje i styl hooków (bez pytań)
-    sections = [
-        ("GenerativeAI creators", "creators", "creators"),
-        ("Marketing / fun", "marketing", "marketing"),
-        ("Biznes & dev", "bizdev", "bizdev"),
-    ]
-
-    used = set()
-    rendered = []
-    for section_title, bucket, style in sections:
-        top = pick_top(items, bucket, 5, already_used=used, scorer=score_for)
-        posts = [format_post(it, style=style) for it in top]
-        rendered.append((section_title, posts))
-
-    # zapis jednego pliku
-    if outfile_format == "md":
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(f"# {title}\n\n")
-            idx = 1
-            for sec, posts in rendered:
-                f.write(f"## {sec}\n\n")
-                for p in posts:
-                    f.write(f"{idx}. {p}\n\n")
-                    idx += 1
-    else:
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(f"{title}\n\n")
-            idx = 1
-            for sec, posts in rendered:
-                f.write(sec.upper() + "\n\n")
-                for p in posts:
-                    f.write(f"{idx}. {p}\n\n")
-                    idx += 1
-
-    # zapamiętaj, co wykorzystano
-    save_seen([it["link"] for it in items])
-
-    # --- Static HTML builder (no Jekyll required) ---
-    TZ_PL = ZoneInfo("Europe/Warsaw")
-    TZ_LA = ZoneInfo("America/Los_Angeles")
-
-    def build_html(today_str: str, md_path: str) -> str:
-        with open(md_path, "r", encoding="utf-8") as f:
-            md_src = f.read()
-        html_content = markdown.markdown(md_src, extensions=["fenced_code", "tables"])
-
-        now_pl = datetime.now(TZ_PL)
-        now_la = now_pl.astimezone(TZ_LA)
-        banner_note = f"Automatyczny update: 09:00 (Warszawa) / 00:00 (Los Angeles)"
-
-        return f"""<!DOCTYPE html>
-<html lang=\"pl\">
-<head>
-  <meta charset=\"UTF-8\" />
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-  <title>Machine Cinema Poland - Daily AI Newsletter — {today_str}</title>
-  <meta name=\"description\" content=\"Codzienny przegląd AI — Machine Cinema Poland\" />
-  <link rel=\"stylesheet\" href=\"assets/custom.css\" />
-  <link rel=\"icon\" href=\"assets/favicon.svg\" type=\"image/svg+xml\" />
-  <meta name=\"theme-color\" content=\"#ff2b2b\" />
-  <meta name=\"robots\" content=\"index,follow\" />
-</head>
-<body>
-  <header>
-    <h1>
-      🧠 <a href=\"https://machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Machine Cinema</a> Poland
-      <span class=\"subtitle\">– Daily AI Newsletter</span>
-    </h1>
-    <p class=\"tagline\">Codzienny przegląd AI</p>
-  </header>
-
-  <div class=\"banner\">\n    <span class=\"clock\">🕘</span> {banner_note}\n  </div>
-
-  <main>
-    <section class=\"newsletter\">
-      {html_content}
-    </section>
-  </main>
-
-  <footer class=\"footer\">
-    <hr>
-    <p>
-      Chcesz wiedzieć więcej? <br>
-      Zajrzyj na stronę
-      <a href=\"https://machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Machine Cinema</a>,
-      sprawdź <a href=\"https://text.machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">wiadomości ze świata</a>
-      oraz aktualne
-      <a href=\"https://luma.com/machinecinema\" target=\"_blank\" rel=\"noopener\">oficjalne wydarzenia w Twojej okolicy</a>.
-    </p>
-    <p class=\"copyright\">© {today_str[:4]} Machine Cinema Poland</p>
-  </footer>
-</body>
-</html>"""
-
-    html = build_html(today, out_path)
-    os.makedirs("site", exist_ok=True)
-    dated = os.path.join("site", f"{today}.html")
-    with open(dated, "w", encoding="utf-8") as f:
-        f.write(html)
-    with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
-        f.write(html)
-    print(f"Zapisano: {dated} oraz site/index.html")
 
 if __name__ == "__main__":
-    main(outfile_format="md")
+    main()

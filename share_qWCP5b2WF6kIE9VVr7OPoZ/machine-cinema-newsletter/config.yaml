@@ -1,0 +1,51 @@
+newsletter:
+  mode: "segments"  # "top" or "segments"
+  per_bucket: 5     # number of items per category
+  title: "Machine Cinema - Przegląd AI (PL)"
+  
+categories:
+  creators:
+    name: "GenerativeAI creators 🧠"
+    keywords:
+      - "prompt engineering"
+      - "stable diffusion"
+      - "midjourney"
+      - "runway"
+      - "generative"
+      - "ai art"
+      - "ai video"
+      - "ai music"
+      - "comfyui"
+      - "automatic1111"
+      
+  marketing:
+    name: "Marketing / fun 🚀"
+    keywords:
+      - "marketing"
+      - "reklama"
+      - "kampania"
+      - "social media"
+      - "viral"
+      - "case study"
+      - "trendy"
+      
+  bizdev:
+    name: "Biznes & dev 💼"
+    keywords:
+      - "regulacje"
+      - "prawo"
+      - "inwestycje"
+      - "funding"
+      - "enterprise"
+      - "api"
+      - "developer"
+      - "startup"
+      - "biznes"
+
+seen_cache:
+  path: "data/seen.json"
+  record_only_published: true
+  ttl_days: 30  # Keep seen URLs for 30 days
+
+link_policy:
+  allow_google_news: true
