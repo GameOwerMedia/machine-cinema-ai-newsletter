@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 import fetch, { RequestInit, Response } from "node-fetch";
 import Parser from "rss-parser";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import dotenv from "dotenv";
 
 export type ProviderType = "company" | "model" | "aggregator";

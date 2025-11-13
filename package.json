@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "fetch:ai-signals": "node dist/fetchAiSignals.js"
+    "fetch:ai-signals": "node dist/fetchAiSignals.js",
+    "update:news": "node dist/updateNews.js"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",

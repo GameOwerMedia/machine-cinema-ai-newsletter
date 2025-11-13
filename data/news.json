@@ -1,86 +1,92 @@
 [
   {
     "id": "openai-gpt5-turbo",
-    "source": "openai.com",
-    "sourceUrl": "https://openai.com",
     "title": "OpenAI ogłasza GPT-5 Turbo dla firm",
     "summary": "Nowy model językowy koncentruje się na automatyzacji procesów i zgodności z regulacjami UE.",
-    "title_en": "OpenAI introduces GPT-5 Turbo for enterprises",
-    "summary_en": "The new language model focuses on process automation and EU compliance support.",
-    "language": "pl",
-    "publishedAt": "2025-11-13T07:30:00+00:00",
+    "provider": "openai.com",
+    "source": "openai.com",
+    "sourceUrl": "https://openai.com",
     "url": "https://openai.com/blog/gpt-5-turbo",
-    "imageUrl": "https://images.unsplash.com/photo-1527430253228-e93688616381?auto=format&fit=crop&w=1400&q=80",
-    "tags": ["hero", "creators", "brief"]
+    "language": "pl",
+    "tags": [
+      "hero",
+      "creators",
+      "brief"
+    ],
+    "publishedAt": "2025-11-13T07:30:00.000Z"
   },
   {
     "id": "midjourney-video-studio",
-    "source": "midjourney.com",
-    "sourceUrl": "https://midjourney.com",
     "title": "Midjourney otwiera studio wideo dla twórców",
     "summary": "Platforma dodała narzędzia do montażu i planuje polski interfejs w Q1 2026.",
-    "title_en": "Midjourney launches a video studio for creators",
-    "summary_en": "The platform introduced editing tools and plans a Polish interface in Q1 2026.",
-    "language": "pl",
-    "publishedAt": "2025-11-13T06:45:00+00:00",
+    "provider": "midjourney.com",
+    "source": "midjourney.com",
+    "sourceUrl": "https://midjourney.com",
     "url": "https://midjourney.com/news/video-studio",
-    "imageUrl": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=1400&q=80",
-    "tags": ["creators", "brief"]
+    "language": "pl",
+    "tags": [
+      "creators",
+      "brief"
+    ],
+    "publishedAt": "2025-11-13T06:45:00.000Z"
   },
   {
     "id": "allegro-marketing-ai",
-    "source": "allegro.pl",
-    "sourceUrl": "https://allegro.pl",
     "title": "Allegro wdraża asystenta AI w kampaniach marketingowych",
     "summary": "Nowy moduł sugeruje treści reklam i optymalizuje budżety według wyników sprzedaży.",
-    "title_en": "Allegro rolls out an AI assistant for marketing campaigns",
-    "summary_en": "The new module recommends ad copy and optimizes budgets based on sales performance.",
-    "language": "pl",
-    "publishedAt": "2025-11-13T05:10:00+00:00",
+    "provider": "allegro.pl",
+    "source": "allegro.pl",
+    "sourceUrl": "https://allegro.pl",
     "url": "https://allegro.pl/pr/ai-marketing-assistant",
-    "imageUrl": "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
-    "tags": ["marketing", "brief"]
+    "language": "pl",
+    "tags": [
+      "marketing",
+      "brief"
+    ],
+    "publishedAt": "2025-11-13T05:10:00.000Z"
   },
   {
     "id": "cd-projekt-ai-labs",
-    "source": "cdprojekt.com",
-    "sourceUrl": "https://cdprojekt.com",
     "title": "CD PROJEKT tworzy laboratorium AI dla zespołów kreatywnych",
     "summary": "Warszawski hub ma wspierać pisarzy i grafików w prototypowaniu nowych IP.",
-    "title_en": "CD PROJEKT creates an AI lab for creative teams",
-    "summary_en": "The Warsaw hub will support writers and artists while prototyping new IP.",
-    "language": "pl",
-    "publishedAt": "2025-11-13T04:40:00+00:00",
+    "provider": "cdprojekt.com",
+    "source": "cdprojekt.com",
+    "sourceUrl": "https://cdprojekt.com",
     "url": "https://cdprojekt.com/pl/news/ai-labs",
-    "imageUrl": "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1400&q=80",
-    "tags": ["creators"]
+    "language": "pl",
+    "tags": [
+      "creators"
+    ],
+    "publishedAt": "2025-11-13T04:40:00.000Z"
   },
   {
     "id": "ing-bank-ai-risk",
-    "source": "ing.pl",
-    "sourceUrl": "https://www.ing.pl",
     "title": "ING testuje modele AI do oceny ryzyka kredytowego",
     "summary": "Bank uruchomił pilotaż w Polsce i podkreśla znaczenie transparentnych danych szkoleniowych.",
-    "title_en": "ING pilots AI models for credit risk assessment",
-    "summary_en": "The bank launched a Polish pilot and highlights the need for transparent training data.",
-    "language": "pl",
-    "publishedAt": "2025-11-13T03:20:00+00:00",
+    "provider": "ing.pl",
+    "source": "ing.pl",
+    "sourceUrl": "https://www.ing.pl",
     "url": "https://www.ing.pl/media/ai-credit-risk",
-    "imageUrl": "https://images.unsplash.com/photo-1454165205744-3b78555e5572?auto=format&fit=crop&w=1400&q=80",
-    "tags": ["bizdev", "brief"]
+    "language": "pl",
+    "tags": [
+      "bizdev",
+      "brief"
+    ],
+    "publishedAt": "2025-11-13T03:20:00.000Z"
   },
   {
     "id": "senti-one-contact-center",
-    "source": "sentione.com",
-    "sourceUrl": "https://sentione.com",
     "title": "SentiOne uruchamia polski contact center z chatbotami",
     "summary": "System rozpoznaje emocje rozmówców i integruje się z popularnymi CRM-ami.",
-    "title_en": "SentiOne launches a Polish contact center powered by chatbots",
-    "summary_en": "The system recognises customer sentiment and integrates with popular CRMs.",
-    "language": "pl",
-    "publishedAt": "2025-11-13T02:05:00+00:00",
+    "provider": "sentione.com",
+    "source": "sentione.com",
+    "sourceUrl": "https://sentione.com",
     "url": "https://sentione.com/pl/blog/contact-center-ai",
-    "imageUrl": "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1400&q=80",
-    "tags": ["marketing", "bizdev"]
+    "language": "pl",
+    "tags": [
+      "marketing",
+      "bizdev"
+    ],
+    "publishedAt": "2025-11-13T02:05:00.000Z"
   }
 ]

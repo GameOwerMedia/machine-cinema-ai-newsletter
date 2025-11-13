@@ -31,6 +31,42 @@ const state = {
   articles: [],
 };
 
+const PLACEHOLDER_IMAGE =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%230f172a"/><stop offset="100%" stop-color="%231e293b"/></linearGradient></defs><rect width="800" height="500" fill="url(%23grad)"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" fill="white" opacity="0.7">AI News</text></svg>';
+
+function ensureString(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function getLocalizedField(article, key) {
+  const base = ensureString(article?.[key]);
+  const pl = ensureString(article?.[`${key}_pl`]) || ensureString(article?.[`${key}Pl`]);
+  const en = ensureString(article?.[`${key}_en`]) || ensureString(article?.[`${key}En`]);
+  const fallback = base || en || pl;
+  return {
+    pl: pl || fallback,
+    en: en || fallback,
+  };
+}
+
+function resolveSource(article) {
+  const source = ensureString(article?.source) || ensureString(article?.provider) || ensureString(article?.providerName);
+  if (source) {
+    return source;
+  }
+  try {
+    const url = new URL(article?.url ?? '');
+    return url.hostname.replace(/^www\./, '');
+  } catch (err) {
+    return 'Source';
+  }
+}
+
+function resolveImage(article) {
+  const url = ensureString(article?.imageUrl) || ensureString(article?.image);
+  return url || PLACEHOLDER_IMAGE;
+}
+
 const heroContainer = document.getElementById('hero');
 const latestContainer = document.getElementById('latest');
 const sectionsContainer = document.getElementById('sections');
@@ -163,8 +199,9 @@ function renderHero(articles) {
   imageLink.target = '_blank';
   imageLink.rel = 'noopener';
   const img = document.createElement('img');
-  img.src = heroArticle.imageUrl;
-  img.alt = heroArticle.title || '';
+  img.src = resolveImage(heroArticle);
+  img.alt = ensureString(heroArticle.title) || 'AI News illustration';
+  img.loading = 'lazy';
   imageLink.appendChild(img);
   articleEl.appendChild(imageLink);
 
@@ -178,13 +215,11 @@ function renderHero(articles) {
   );
 
   const title = document.createElement('h2');
+  const heroTitle = getLocalizedField(heroArticle, 'title');
   title.appendChild(
     createLangElements(
       'a',
-      {
-        pl: heroArticle.title,
-        en: heroArticle.title_en,
-      },
+      heroTitle,
       {
         attrs: {
           href: heroArticle.url,
@@ -198,23 +233,20 @@ function renderHero(articles) {
 
   const meta = document.createElement('p');
   meta.className = 'meta';
+  const heroSource = resolveSource(heroArticle);
   meta.appendChild(
     createLangElements('span', {
-      pl: `${heroArticle.source} • ${formatDate(heroArticle.publishedAt, 'pl')}`,
-      en: `${heroArticle.source} • ${formatDate(heroArticle.publishedAt, 'en')}`,
+      pl: `${heroSource} • ${formatDate(heroArticle.publishedAt, 'pl')}`,
+      en: `${heroSource} • ${formatDate(heroArticle.publishedAt, 'en')}`,
     }),
   );
   content.appendChild(meta);
 
-  if (heroArticle.summary || heroArticle.summary_en) {
+  const heroSummary = getLocalizedField(heroArticle, 'summary');
+  if (heroSummary.pl || heroSummary.en) {
     const summary = document.createElement('p');
     summary.className = 'summary';
-    summary.appendChild(
-      createLangElements('span', {
-        pl: heroArticle.summary || '',
-        en: heroArticle.summary_en || heroArticle.summary || '',
-      }),
-    );
+    summary.appendChild(createLangElements('span', heroSummary));
     content.appendChild(summary);
   }
 
@@ -302,13 +334,11 @@ function renderLatest(articles) {
   const list = document.createElement('ul');
   latestArticles.forEach((article) => {
     const item = document.createElement('li');
+    const titleTexts = getLocalizedField(article, 'title');
     item.appendChild(
       createLangElements(
         'a',
-        {
-          pl: article.title,
-          en: article.title_en,
-        },
+        titleTexts,
         {
           attrs: {
             href: article.url,
@@ -320,10 +350,11 @@ function renderLatest(articles) {
     );
     const source = document.createElement('span');
     source.className = 'latest-source';
+    const sourceLabel = resolveSource(article);
     source.appendChild(
       createLangElements('span', {
-        pl: article.source,
-        en: article.source,
+        pl: sourceLabel,
+        en: sourceLabel,
       }),
     );
     item.appendChild(source);
@@ -347,8 +378,8 @@ function renderSectionCards(tag, articles) {
     imageLink.target = '_blank';
     imageLink.rel = 'noopener';
     const img = document.createElement('img');
-    img.src = article.imageUrl;
-    img.alt = article.title || '';
+    img.src = resolveImage(article);
+    img.alt = ensureString(article.title) || 'AI News illustration';
     img.loading = 'lazy';
     imageLink.appendChild(img);
     card.appendChild(imageLink);
@@ -357,13 +388,11 @@ function renderSectionCards(tag, articles) {
     body.className = 'card-body';
 
     const heading = document.createElement('h3');
+    const titleTexts = getLocalizedField(article, 'title');
     heading.appendChild(
       createLangElements(
         'a',
-        {
-          pl: article.title,
-          en: article.title_en,
-        },
+        titleTexts,
         {
           attrs: {
             href: article.url,
@@ -377,23 +406,20 @@ function renderSectionCards(tag, articles) {
 
     const meta = document.createElement('p');
     meta.className = 'meta';
+    const sourceLabel = resolveSource(article);
     meta.appendChild(
       createLangElements('span', {
-        pl: `${article.source} • ${formatDate(article.publishedAt, 'pl')}`,
-        en: `${article.source} • ${formatDate(article.publishedAt, 'en')}`,
+        pl: `${sourceLabel} • ${formatDate(article.publishedAt, 'pl')}`,
+        en: `${sourceLabel} • ${formatDate(article.publishedAt, 'en')}`,
       }),
     );
     body.appendChild(meta);
 
-    if (article.summary || article.summary_en) {
+    const summaryTexts = getLocalizedField(article, 'summary');
+    if (summaryTexts.pl || summaryTexts.en) {
       const summary = document.createElement('p');
       summary.className = 'summary';
-      summary.appendChild(
-        createLangElements('span', {
-          pl: article.summary || '',
-          en: article.summary_en || article.summary || '',
-        }),
-      );
+      summary.appendChild(createLangElements('span', summaryTexts));
       body.appendChild(summary);
     }
 
