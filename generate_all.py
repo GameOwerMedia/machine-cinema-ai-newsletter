@@ -2,11 +2,16 @@
 import os
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from dateutil import parser as date_parser
 
 from fetch_ai_news import gather, save_seen
+
+try:  # Optional dependency, falls back gracefully when unavailable
+    from googletrans import Translator  # type: ignore
+except Exception:  # pragma: no cover - optional import guard
+    Translator = None
 
 N_PER_BUCKET = 5
 
@@ -101,6 +106,57 @@ MONTHS_PL = {
 
 DEFAULT_IMAGE = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80"
 
+_TRANSLATOR = None
+
+
+def _get_translator():
+    global _TRANSLATOR
+    if _TRANSLATOR is False:
+        return None
+    if _TRANSLATOR is None and Translator is not None:
+        try:
+            _TRANSLATOR = Translator()
+        except Exception:
+            _TRANSLATOR = False
+    return None if _TRANSLATOR is False else _TRANSLATOR
+
+
+def _translate_batch(texts, dest="en"):
+    translator = _get_translator()
+    if not texts:
+        return []
+    if translator is None:
+        return [None] * len(texts)
+
+    translated_texts: List[Optional[str]] = []
+    for text in texts:
+        try:
+            result = translator.translate(text, dest=dest)
+        except Exception:
+            translated_texts.append(None)
+            continue
+
+        translated_texts.append(getattr(result, "text", None))
+
+    return translated_texts
+
+
+def _ensure_translations(items: List[Dict[str, str]]) -> None:
+    texts = []
+    lookup: List[Tuple[int, str]] = []
+    for idx, item in enumerate(items):
+        for key in ("title", "summary"):
+            value = (item.get(key) or "").strip()
+            if value:
+                texts.append(value)
+                lookup.append((idx, key))
+
+    translations = _translate_batch(texts, dest="en") if texts else []
+
+    for (idx, key), translated in zip(lookup, translations):
+        english_value = translated or (items[idx].get(key) or "")
+        items[idx][f"{key}_en"] = english_value
+
 def score_for(bucket, item):
     title = (item.get("title") or "")
     summ = (item.get("summary") or "")
@@ -166,12 +222,27 @@ def _format_datetime_pl(value: str) -> str:
     return f"{dt.day} {month} {dt.year}, {dt:%H:%M}"
 
 
+def _format_datetime_en(value: str) -> str:
+    dt = _parse_iso(value).astimezone(ZoneInfo("Europe/Warsaw"))
+    return dt.strftime("%d %B %Y, %H:%M")
+
+
 def _render_latest_list(articles: List[Dict[str, str]]) -> str:
     items = []
     for art in articles[:6]:
         items.append(
-            f"<li><a href=\"{art['link']}\" target=\"_blank\" rel=\"noopener\">"
-            f"{art['title']}</a><span>{art['source']}</span></li>"
+            f"""
+            <li>
+              <a href=\"{art['link']}\" target=\"_blank\" rel=\"noopener\">
+                <span data-lang-content=\"pl\">{art['title']}</span>
+                <span data-lang-content=\"en\">{art.get('title_en', art['title'])}</span>
+              </a>
+              <span class=\"latest-source\">
+                <span data-lang-content=\"pl\">{art['source']}</span>
+                <span data-lang-content=\"en\">{art['source']}</span>
+              </span>
+            </li>
+            """.strip()
         )
     return "\n".join(items)
 
@@ -181,26 +252,43 @@ def _render_card(article: Dict[str, str]) -> str:
     summary = article.get("summary", "")
     if len(summary) > 220:
         summary = summary[:217] + "..."
+    summary_en = article.get("summary_en", summary)
+    if len(summary_en) > 220:
+        summary_en = summary_en[:217] + "..."
+    meta_pl = f"{article['source']} • {_format_datetime_pl(article['published'])}"
+    meta_en = f"{article['source']} • {_format_datetime_en(article['published'])}"
     return f"""
     <article class=\"news-card\">
       <a class=\"card-image\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">
         <img src=\"{image}\" alt=\"{article['title']}\" loading=\"lazy\" />
       </a>
       <div class=\"card-body\">
-        <h3><a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">{article['title']}</a></h3>
-        <p class=\"meta\">{article['source']} • {_format_datetime_pl(article['published'])}</p>
-        <p class=\"summary\">{summary}</p>
+        <h3>
+          <a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\" data-lang-content=\"pl\">{article['title']}</a>
+          <a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\" data-lang-content=\"en\">{article.get('title_en', article['title'])}</a>
+        </h3>
+        <p class=\"meta\">
+          <span data-lang-content=\"pl\">{meta_pl}</span>
+          <span data-lang-content=\"en\">{meta_en}</span>
+        </p>
+        <p class=\"summary\">
+          <span data-lang-content=\"pl\">{summary}</span>
+          <span data-lang-content=\"en\">{summary_en}</span>
+        </p>
       </div>
     </article>
     """.strip()
 
 
-def _render_section(name: str, anchor: str, articles: List[Dict[str, str]]) -> str:
+def _render_section(name_pl: str, name_en: str, anchor: str, articles: List[Dict[str, str]]) -> str:
     cards = "\n".join(_render_card(article) for article in articles)
     return f"""
     <section class=\"section-block\" id=\"{anchor}\">
       <header class=\"section-header\">
-        <h2>{name}</h2>
+        <h2>
+          <span data-lang-content=\"pl\">{name_pl}</span>
+          <span data-lang-content=\"en\">{name_en}</span>
+        </h2>
       </header>
       <div class=\"news-grid\">
         {cards}
@@ -214,17 +302,33 @@ def _render_featured(article: Dict[str, str]) -> str:
     summary = article.get("summary", "")
     if len(summary) > 280:
         summary = summary[:277] + "..."
+    summary_en = article.get("summary_en", summary)
+    if len(summary_en) > 280:
+        summary_en = summary_en[:277] + "..."
+    meta_pl = f"{article['source']} • {_format_datetime_pl(article['published'])}"
+    meta_en = f"{article['source']} • {_format_datetime_en(article['published'])}"
     return f"""
     <article class=\"hero-article\">
       <a class=\"hero-image\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">
         <img src=\"{image}\" alt=\"{article['title']}\" />
       </a>
       <div class=\"hero-content\">
-        <span class=\"pill\">Najważniejszy temat</span>
-        <h2><a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">{article['title']}</a></h2>
-        <p class=\"meta\">{article['source']} • {_format_datetime_pl(article['published'])}</p>
-        <p class=\"summary\">{summary}</p>
-        <a class=\"hero-button\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">Czytaj artykuł →</a>
+        <span class=\"pill\" data-lang-content=\"pl\">Najważniejszy temat</span>
+        <span class=\"pill\" data-lang-content=\"en\">Top story</span>
+        <h2>
+          <a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\" data-lang-content=\"pl\">{article['title']}</a>
+          <a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\" data-lang-content=\"en\">{article.get('title_en', article['title'])}</a>
+        </h2>
+        <p class=\"meta\">
+          <span data-lang-content=\"pl\">{meta_pl}</span>
+          <span data-lang-content=\"en\">{meta_en}</span>
+        </p>
+        <p class=\"summary\">
+          <span data-lang-content=\"pl\">{summary}</span>
+          <span data-lang-content=\"en\">{summary_en}</span>
+        </p>
+        <a class=\"hero-button\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\" data-lang-content=\"pl\">Czytaj artykuł →</a>
+        <a class=\"hero-button\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\" data-lang-content=\"en\">Read article →</a>
       </div>
     </article>
     """.strip()
@@ -242,24 +346,24 @@ def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_url
     featured_article = items[0]
     used_links = {featured_article["link"]}
 
-    sections_cfg: List[Tuple[str, str, str]] = [
-        ("GenerativeAI creators", "creators", "creator"),
-        ("Marketing / fun", "marketing", "marketing"),
-        ("Biznes & dev", "bizdev", "bizdev"),
+    sections_cfg: List[Tuple[str, str, str, str]] = [
+        ("Twórcy generatywnej AI", "Generative AI creators", "creators", "creator"),
+        ("Marketing i rozrywka", "Marketing & entertainment", "marketing", "marketing"),
+        ("Biznes i rozwój", "Business & development", "bizdev", "bizdev"),
     ]
 
-    section_payloads: List[Tuple[str, str, List[Dict[str, str]]]] = []
-    for section_title, bucket, anchor in sections_cfg:
+    section_payloads: List[Tuple[str, str, str, List[Dict[str, str]]]] = []
+    for title_pl, title_en, bucket, anchor in sections_cfg:
         top_articles = pick_top(items, bucket, 4, already_used=used_links, scorer=score_for)
-        section_payloads.append((section_title, anchor, top_articles))
+        section_payloads.append((title_pl, title_en, anchor, top_articles))
 
     # Optional markdown export for archival purposes
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(f"# Machine Cinema Poland — {today}\n\n")
         f.write("## Najważniejsze artykuły\n\n")
         f.write(f"1. {featured_article['title']} — {featured_article['link']}\n\n")
-        for idx, (section_title, anchor, articles) in enumerate(section_payloads, start=2):
-            f.write(f"## {section_title}\n\n")
+        for idx, (title_pl, _, anchor, articles) in enumerate(section_payloads, start=2):
+            f.write(f"## {title_pl}\n\n")
             for article in articles:
                 f.write(f"- {article['title']} — {article['link']}\n")
             f.write("\n")
@@ -269,17 +373,24 @@ def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_url
 
     TZ_PL = ZoneInfo("Europe/Warsaw")
     TZ_LA = ZoneInfo("America/Los_Angeles")
+    _ensure_translations(items)
     hero_html = _render_featured(featured_article)
     sections_html = "\n".join(
-        _render_section(name, anchor, arts) for name, anchor, arts in section_payloads if arts
+        _render_section(name_pl, name_en, anchor, arts)
+        for name_pl, name_en, anchor, arts in section_payloads
+        if arts
     )
     latest_html = _render_latest_list(items)
 
     def build_html(today_str: str) -> str:
         now_pl = datetime.now(TZ_PL)
         now_la = now_pl.astimezone(TZ_LA)
-        banner_note = (
+        banner_note_pl = (
             f"Aktualizacja: {now_pl:%d.%m.%Y, %H:%M} (Warszawa) "
+            f"/ {now_la:%d.%m.%Y, %H:%M} (Los Angeles)"
+        )
+        banner_note_en = (
+            f"Updated: {now_pl:%d.%m.%Y, %H:%M} (Warsaw) "
             f"/ {now_la:%d.%m.%Y, %H:%M} (Los Angeles)"
         )
 
@@ -295,29 +406,37 @@ def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_url
   <meta name=\"theme-color\" content=\"#b80000\" />
   <meta name=\"robots\" content=\"index,follow\" />
 </head>
-<body>
+<body class=\"lang-pl\">
   <header class=\"top-bar\">
     <div class=\"logo-wrap\">
       <span class=\"logo-mark\">🧠</span>
       <div>
         <a class=\"brand\" href=\"https://machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Machine Cinema Poland</a>
-        <p class=\"strapline\">Portal wiadomości o sztucznej inteligencji</p>
+        <p class=\"strapline\" data-lang-content=\"pl\">Portal wiadomości o sztucznej inteligencji</p>
+        <p class=\"strapline\" data-lang-content=\"en\">Newsroom focused on artificial intelligence</p>
       </div>
     </div>
+    <div class=\"lang-toggle\">
+      <button type=\"button\" class=\"lang-button active\" data-lang=\"pl\">PL</button>
+      <button type=\"button\" class=\"lang-button\" data-lang=\"en\">EN</button>
+    </div>
     <nav class=\"primary-nav\">
-      <a href=\"#creator\">Twórcy</a>
-      <a href=\"#marketing\">Marketing</a>
-      <a href=\"#bizdev\">Biznes &amp; dev</a>
+      <a href=\"#creator\"><span data-lang-content=\"pl\">Twórcy</span><span data-lang-content=\"en\">Creators</span></a>
+      <a href=\"#marketing\"><span data-lang-content=\"pl\">Marketing</span><span data-lang-content=\"en\">Marketing</span></a>
+      <a href=\"#bizdev\"><span data-lang-content=\"pl\">Biznes &amp; dev</span><span data-lang-content=\"en\">Business &amp; dev</span></a>
     </nav>
   </header>
 
-  <div class=\"banner\"><span class=\"clock\">🕘</span>{banner_note}</div>
+  <div class=\"banner\"><span class=\"clock\">🕘</span><span data-lang-content=\"pl\">{banner_note_pl}</span><span data-lang-content=\"en\">{banner_note_en}</span></div>
 
   <main class=\"page\">
     <section class=\"hero\">
       {hero_html}
       <aside class=\"latest\">
-        <h3>W skrócie</h3>
+        <h3>
+          <span data-lang-content=\"pl\">W skrócie</span>
+          <span data-lang-content=\"en\">In brief</span>
+        </h3>
         <ul>
           {latest_html}
         </ul>
@@ -331,12 +450,39 @@ def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_url
 
   <footer class=\"footer\">
     <div class=\"footer-links\">
-      <a href=\"https://text.machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Globalne wiadomości</a>
-      <a href=\"https://luma.com/machinecinema\" target=\"_blank\" rel=\"noopener\">Wydarzenia</a>
-      <a href=\"mailto:contact@machinecinema.ai\">Kontakt redakcji</a>
+      <a href=\"https://text.machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">
+        <span data-lang-content=\"pl\">Globalne wiadomości</span>
+        <span data-lang-content=\"en\">Global news</span>
+      </a>
+      <a href=\"https://luma.com/machinecinema\" target=\"_blank\" rel=\"noopener\">
+        <span data-lang-content=\"pl\">Wydarzenia</span>
+        <span data-lang-content=\"en\">Events</span>
+      </a>
+      <a href=\"mailto:contact@machinecinema.ai\">
+        <span data-lang-content=\"pl\">Kontakt redakcji</span>
+        <span data-lang-content=\"en\">Contact the newsroom</span>
+      </a>
     </div>
-    <p>© {today_str[:4]} Machine Cinema Poland — codziennie najświeższe informacje o AI.</p>
+    <p>
+      <span data-lang-content=\"pl\">© {today_str[:4]} Machine Cinema Poland — codziennie najświeższe informacje o AI.</span>
+      <span data-lang-content=\"en\">© {today_str[:4]} Machine Cinema Poland — daily insights on artificial intelligence.</span>
+    </p>
   </footer>
+  <script>
+    const langButtons = document.querySelectorAll('.lang-button');
+    function applyLanguage(lang) {{
+      document.documentElement.setAttribute('lang', lang);
+      document.body.classList.remove('lang-pl', 'lang-en');
+      document.body.classList.add('lang-' + lang);
+      langButtons.forEach((btn) => {{
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      }});
+    }}
+    langButtons.forEach((btn) => {{
+      btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+    }});
+    applyLanguage('pl');
+  </script>
 </body>
 </html>"""
 

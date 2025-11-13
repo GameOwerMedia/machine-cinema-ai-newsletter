@@ -9,6 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from fetch_ai_news import gather
 from make_posts import format_post
+import generate_all as generator
 from generate_all import pick_top, score_for
 
 
@@ -68,3 +69,14 @@ def test_pick_top_prefers_unique_domains(sample_articles):
     assert len(chosen) == 4
     domains = {article["link"].split("/")[2] for article in chosen}
     assert len(domains) == len(chosen)
+
+
+def test_ensure_translations_falls_back(monkeypatch):
+    articles = [{"title": "Tytuł", "summary": "Krótki opis"}]
+
+    monkeypatch.setattr(generator, "_translate_batch", lambda texts, dest="en": [None] * len(texts))
+
+    generator._ensure_translations(articles)
+
+    assert articles[0]["title_en"] == "Tytuł"
+    assert articles[0]["summary_en"] == "Krótki opis"

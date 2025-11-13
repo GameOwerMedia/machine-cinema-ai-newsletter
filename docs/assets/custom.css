@@ -20,6 +20,15 @@ body {
   line-height: 1.6;
 }
 
+[data-lang-content] {
+  display: none;
+}
+
+body.lang-pl [data-lang-content="pl"],
+body.lang-en [data-lang-content="en"] {
+  display: initial;
+}
+
 a {
   color: var(--brand-red);
   text-decoration: none;
@@ -50,6 +59,29 @@ a:hover {
 
 .logo-mark {
   font-size: 2.5rem;
+}
+
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lang-button {
+  border: 1px solid var(--border);
+  background: var(--brand-light);
+  color: var(--brand-dark);
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.lang-button.active,
+.lang-button:hover {
+  border-color: var(--brand-red);
+  color: var(--brand-red);
 }
 
 .brand {
