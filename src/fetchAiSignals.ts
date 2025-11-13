@@ -176,7 +176,8 @@ async function fetchRssSignals(provider: AiProvider): Promise<AiSignal[]> {
 
 function deriveOriginFromUrl(provider: AiProvider, pageUrl: string): string {
   const url = new URL(pageUrl);
-  const pathSlug = slugifyTag(url.pathname.replace(/\/+/, "/"));
+  const normalisedPath = url.pathname.replace(/\/+/g, "/");
+  const pathSlug = slugifyTag(normalisedPath);
   if (pathSlug) {
     return `${provider.slug}-${pathSlug}`;
   }
@@ -301,9 +302,10 @@ async function fetchXSignals(provider: AiProvider, token: string | undefined): P
   if (!queryParts.length) {
     return [];
   }
-  const combinedQuery = queryParts.length === 1 ? queryParts[0] : `(${queryParts.join(" OR ")})`;
+  const baseQuery = queryParts.length === 1 ? queryParts[0] : `(${queryParts.join(" OR ")})`;
+  const searchQuery = `${baseQuery} lang:en -is:retweet`;
   const searchParams = new URLSearchParams({
-    query: `${combinedQuery} -is:retweet`,
+    query: searchQuery,
     "max_results": "20",
     "tweet.fields": "created_at,lang,author_id",
     expansions: "author_id",
