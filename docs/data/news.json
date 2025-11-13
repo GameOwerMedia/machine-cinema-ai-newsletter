@@ -1,92 +1,162 @@
 [
   {
-    "id": "openai-gpt5-turbo",
-    "title": "OpenAI ogłasza GPT-5 Turbo dla firm",
-    "summary": "Nowy model językowy koncentruje się na automatyzacji procesów i zgodności z regulacjami UE.",
-    "provider": "openai.com",
-    "source": "openai.com",
-    "sourceUrl": "https://openai.com",
-    "url": "https://openai.com/blog/gpt-5-turbo",
-    "language": "pl",
+    "id": "anthropic-web-20240711",
+    "title": "Claude 3.5 Sonnet launches with enhanced reasoning",
+    "summary": "Anthropic announces Claude 3.5 Sonnet, boosting reasoning, coding, and tool use in its flagship AI assistant.",
+    "provider": "Anthropic",
+    "source": "Anthropic",
+    "sourceUrl": "https://www.anthropic.com/news/claude-3-5-sonnet",
+    "url": "https://www.anthropic.com/news/claude-3-5-sonnet",
+    "language": "en",
     "tags": [
-      "hero",
-      "creators",
-      "brief"
+      "anthropic",
+      "claude",
+      "claude-3-5"
     ],
-    "publishedAt": "2025-11-13T07:30:00.000Z"
+    "publishedAt": "2024-07-11T15:00:00.000Z"
   },
   {
-    "id": "midjourney-video-studio",
-    "title": "Midjourney otwiera studio wideo dla twórców",
-    "summary": "Platforma dodała narzędzia do montażu i planuje polski interfejs w Q1 2026.",
-    "provider": "midjourney.com",
-    "source": "midjourney.com",
-    "sourceUrl": "https://midjourney.com",
-    "url": "https://midjourney.com/news/video-studio",
-    "language": "pl",
+    "id": "runway-x-twitter-20240702",
+    "title": "Gen-3 Alpha now supports camera motion presets",
+    "summary": "Runway announces on X that Gen-3 Alpha gains new camera motion presets for creators to storyboard shots quickly.",
+    "provider": "Runway",
+    "source": "Runway",
+    "sourceUrl": "https://x.com/runwayml/status/1808147320000000000",
+    "url": "https://x.com/runwayml/status/1808147320000000000",
+    "language": "en",
     "tags": [
-      "creators",
-      "brief"
+      "runway",
+      "gen-3",
+      "update"
     ],
-    "publishedAt": "2025-11-13T06:45:00.000Z"
+    "publishedAt": "2024-07-02T19:05:00.000Z"
   },
   {
-    "id": "allegro-marketing-ai",
-    "title": "Allegro wdraża asystenta AI w kampaniach marketingowych",
-    "summary": "Nowy moduł sugeruje treści reklam i optymalizuje budżety według wyników sprzedaży.",
-    "provider": "allegro.pl",
-    "source": "allegro.pl",
-    "sourceUrl": "https://allegro.pl",
-    "url": "https://allegro.pl/pr/ai-marketing-assistant",
-    "language": "pl",
+    "id": "runway-blog-20240617",
+    "title": "Runway debuts Gen-3 Alpha for text-to-video",
+    "summary": "Runway launches Gen-3 Alpha, a new multimodal video generation model with finer control and cinematic quality.",
+    "provider": "Runway",
+    "source": "Runway",
+    "sourceUrl": "https://runwayml.com/blog/introducing-runway-gen-3-alpha",
+    "url": "https://runwayml.com/blog/introducing-runway-gen-3-alpha",
+    "language": "en",
     "tags": [
-      "marketing",
-      "brief"
+      "runway",
+      "gen-3",
+      "text-to-video"
     ],
-    "publishedAt": "2025-11-13T05:10:00.000Z"
+    "publishedAt": "2024-06-17T15:30:00.000Z"
   },
   {
-    "id": "cd-projekt-ai-labs",
-    "title": "CD PROJEKT tworzy laboratorium AI dla zespołów kreatywnych",
-    "summary": "Warszawski hub ma wspierać pisarzy i grafików w prototypowaniu nowych IP.",
-    "provider": "cdprojekt.com",
-    "source": "cdprojekt.com",
-    "sourceUrl": "https://cdprojekt.com",
-    "url": "https://cdprojekt.com/pl/news/ai-labs",
-    "language": "pl",
+    "id": "huggingface-blog-20240522",
+    "title": "Hugging Face releases Idefics2 multimodal foundation model",
+    "summary": "Hugging Face launches Idefics2, advancing multimodal understanding with improved vision-language reasoning.",
+    "provider": "Hugging Face",
+    "source": "Hugging Face",
+    "sourceUrl": "https://huggingface.co/blog/idefics2",
+    "url": "https://huggingface.co/blog/idefics2",
+    "language": "en",
     "tags": [
-      "creators"
+      "hugging-face",
+      "idefics2",
+      "multimodal"
     ],
-    "publishedAt": "2025-11-13T04:40:00.000Z"
+    "publishedAt": "2024-05-22T11:00:00.000Z"
   },
   {
-    "id": "ing-bank-ai-risk",
-    "title": "ING testuje modele AI do oceny ryzyka kredytowego",
-    "summary": "Bank uruchomił pilotaż w Polsce i podkreśla znaczenie transparentnych danych szkoleniowych.",
-    "provider": "ing.pl",
-    "source": "ing.pl",
-    "sourceUrl": "https://www.ing.pl",
-    "url": "https://www.ing.pl/media/ai-credit-risk",
-    "language": "pl",
+    "id": "ibm-blog-20240521",
+    "title": "IBM expands watsonx Granite models",
+    "summary": "IBM launches new Granite code and instruction models for watsonx, adding multilingual and domain-specific capabilities.",
+    "provider": "IBM Watson",
+    "source": "IBM Watson",
+    "sourceUrl": "https://research.ibm.com/blog/watsonx-granite-models",
+    "url": "https://research.ibm.com/blog/watsonx-granite-models",
+    "language": "en",
     "tags": [
-      "bizdev",
-      "brief"
+      "ibm",
+      "watsonx",
+      "granite"
     ],
-    "publishedAt": "2025-11-13T03:20:00.000Z"
+    "publishedAt": "2024-05-21T13:30:00.000Z"
   },
   {
-    "id": "senti-one-contact-center",
-    "title": "SentiOne uruchamia polski contact center z chatbotami",
-    "summary": "System rozpoznaje emocje rozmówców i integruje się z popularnymi CRM-ami.",
-    "provider": "sentione.com",
-    "source": "sentione.com",
-    "sourceUrl": "https://sentione.com",
-    "url": "https://sentione.com/pl/blog/contact-center-ai",
-    "language": "pl",
+    "id": "openai-rss-20240513",
+    "title": "Introducing GPT-4o",
+    "summary": "OpenAI launches GPT-4o, a multimodal flagship model delivering real-time text, image, and audio capabilities.",
+    "provider": "OpenAI",
+    "source": "OpenAI",
+    "sourceUrl": "https://openai.com/index/introducing-gpt-4o/",
+    "url": "https://openai.com/index/introducing-gpt-4o/",
+    "language": "en",
     "tags": [
-      "marketing",
-      "bizdev"
+      "openai",
+      "gpt-4o",
+      "multimodal"
     ],
-    "publishedAt": "2025-11-13T02:05:00.000Z"
+    "publishedAt": "2024-05-13T17:00:00.000Z"
+  },
+  {
+    "id": "microsoft-blog-20240423",
+    "title": "Microsoft introduces Phi-3 family of small language models",
+    "summary": "Microsoft Research debuts Phi-3-mini, Phi-3-small, and Phi-3-medium models optimized for on-device and enterprise AI.",
+    "provider": "Microsoft AI",
+    "source": "Microsoft AI",
+    "sourceUrl": "https://www.microsoft.com/en-us/research/blog/introducing-phi-3/",
+    "url": "https://www.microsoft.com/en-us/research/blog/introducing-phi-3/",
+    "language": "en",
+    "tags": [
+      "microsoft",
+      "phi-3",
+      "llm"
+    ],
+    "publishedAt": "2024-04-23T16:00:00.000Z"
+  },
+  {
+    "id": "meta-ai-blog-20240418",
+    "title": "Meta releases Llama 3",
+    "summary": "Meta open-sources Llama 3 models with improved performance, multilingual support, and updated safety tooling.",
+    "provider": "Meta AI",
+    "source": "Meta AI",
+    "sourceUrl": "https://ai.meta.com/blog/llama-3/",
+    "url": "https://ai.meta.com/blog/llama-3/",
+    "language": "en",
+    "tags": [
+      "meta",
+      "llama-3",
+      "open-source"
+    ],
+    "publishedAt": "2024-04-18T14:00:00.000Z"
+  },
+  {
+    "id": "cohere-blog-20240328",
+    "title": "Introducing Command R+ for enterprise AI",
+    "summary": "Cohere releases Command R+, a retrieval-augmented language model tailored for complex enterprise workflows and multilingual tasks.",
+    "provider": "Cohere",
+    "source": "Cohere",
+    "sourceUrl": "https://cohere.com/blog/introducing-command-r-plus",
+    "url": "https://cohere.com/blog/introducing-command-r-plus",
+    "language": "en",
+    "tags": [
+      "cohere",
+      "command-r",
+      "enterprise"
+    ],
+    "publishedAt": "2024-03-28T10:00:00.000Z"
+  },
+  {
+    "id": "stability-news-20240312",
+    "title": "Stable Diffusion 3 arrives with improved image generation",
+    "summary": "Stability AI introduces Stable Diffusion 3, delivering stronger text rendering, photorealism, and safety controls.",
+    "provider": "Stability AI",
+    "source": "Stability AI",
+    "sourceUrl": "https://stability.ai/news/stable-diffusion-3",
+    "url": "https://stability.ai/news/stable-diffusion-3",
+    "language": "en",
+    "tags": [
+      "stability",
+      "stable-diffusion",
+      "image"
+    ],
+    "publishedAt": "2024-03-12T09:00:00.000Z"
   }
 ]

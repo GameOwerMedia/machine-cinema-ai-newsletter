@@ -1,1 +1,218 @@
-[]
+[
+  {
+    "id": "anthropic-web-20240711",
+    "providerSlug": "anthropic",
+    "providerName": "Anthropic",
+    "source": "website",
+    "origin": "anthropic-news",
+    "title": "Claude 3.5 Sonnet launches with enhanced reasoning",
+    "summary": "Anthropic announces Claude 3.5 Sonnet, boosting reasoning, coding, and tool use in its flagship AI assistant.",
+    "url": "https://www.anthropic.com/news/claude-3-5-sonnet",
+    "language": "en",
+    "tags": [
+      "anthropic",
+      "claude",
+      "claude-3-5"
+    ],
+    "publishedAt": "2024-07-11T15:00:00Z",
+    "collectedAt": "2024-07-12T08:30:00Z"
+  },
+  {
+    "id": "runway-x-twitter-20240702",
+    "providerSlug": "runway-gen-3",
+    "providerName": "Runway",
+    "source": "x",
+    "origin": "x",
+    "title": "Gen-3 Alpha now supports camera motion presets",
+    "summary": "Runway announces on X that Gen-3 Alpha gains new camera motion presets for creators to storyboard shots quickly.",
+    "url": "https://x.com/runwayml/status/1808147320000000000",
+    "language": "en",
+    "tags": [
+      "runway",
+      "gen-3",
+      "update"
+    ],
+    "publishedAt": "2024-07-02T19:05:00Z",
+    "collectedAt": "2024-07-03T10:15:00Z"
+  },
+  {
+    "id": "runway-blog-20240617",
+    "providerSlug": "runway-gen-3",
+    "providerName": "Runway",
+    "source": "website",
+    "origin": "runway-blog",
+    "title": "Runway debuts Gen-3 Alpha for text-to-video",
+    "summary": "Runway launches Gen-3 Alpha, a new multimodal video generation model with finer control and cinematic quality.",
+    "url": "https://runwayml.com/blog/introducing-runway-gen-3-alpha",
+    "language": "en",
+    "tags": [
+      "runway",
+      "gen-3",
+      "text-to-video"
+    ],
+    "publishedAt": "2024-06-17T15:30:00Z",
+    "collectedAt": "2024-06-17T20:05:00Z"
+  },
+  {
+    "id": "huggingface-blog-20240522",
+    "providerSlug": "hugging-face",
+    "providerName": "Hugging Face",
+    "source": "website",
+    "origin": "hugging-face-blog",
+    "title": "Hugging Face releases Idefics2 multimodal foundation model",
+    "summary": "Hugging Face launches Idefics2, advancing multimodal understanding with improved vision-language reasoning.",
+    "url": "https://huggingface.co/blog/idefics2",
+    "language": "en",
+    "tags": [
+      "hugging-face",
+      "idefics2",
+      "multimodal"
+    ],
+    "publishedAt": "2024-05-22T11:00:00Z",
+    "collectedAt": "2024-05-22T15:40:00Z"
+  },
+  {
+    "id": "ibm-blog-20240521",
+    "providerSlug": "ibm-watson",
+    "providerName": "IBM Watson",
+    "source": "website",
+    "origin": "ibm-research",
+    "title": "IBM expands watsonx Granite models",
+    "summary": "IBM launches new Granite code and instruction models for watsonx, adding multilingual and domain-specific capabilities.",
+    "url": "https://research.ibm.com/blog/watsonx-granite-models",
+    "language": "en",
+    "tags": [
+      "ibm",
+      "watsonx",
+      "granite"
+    ],
+    "publishedAt": "2024-05-21T13:30:00Z",
+    "collectedAt": "2024-05-21T18:45:00Z"
+  },
+  {
+    "id": "openai-rss-20240513",
+    "providerSlug": "openai",
+    "providerName": "OpenAI",
+    "source": "website",
+    "origin": "openai-index",
+    "title": "Introducing GPT-4o",
+    "summary": "OpenAI launches GPT-4o, a multimodal flagship model delivering real-time text, image, and audio capabilities.",
+    "url": "https://openai.com/index/introducing-gpt-4o/",
+    "language": "en",
+    "tags": [
+      "openai",
+      "gpt-4o",
+      "multimodal"
+    ],
+    "publishedAt": "2024-05-13T17:00:00Z",
+    "collectedAt": "2024-05-14T09:00:00Z"
+  },
+  {
+    "id": "deepmind-blog-20240508",
+    "providerSlug": "deepmind",
+    "providerName": "Google DeepMind",
+    "source": "website",
+    "origin": "deepmind-discover",
+    "title": "AlphaFold 3 advances scientific discovery",
+    "summary": "DeepMind unveils AlphaFold 3, expanding molecular coverage and enabling new biology and chemistry breakthroughs.",
+    "url": "https://deepmind.google/discover/blog/alphafold-3-advancing-science-with-ai",
+    "language": "en",
+    "tags": [
+      "deepmind",
+      "alphafold",
+      "research"
+    ],
+    "publishedAt": "2024-05-08T12:00:00Z",
+    "collectedAt": "2024-05-09T10:15:00Z"
+  },
+  {
+    "id": "perplexity-blog-20240430",
+    "providerSlug": "perplexity",
+    "providerName": "Perplexity",
+    "source": "website",
+    "origin": "perplexity-blog",
+    "title": "Perplexity introduces Pages for publishing AI research summaries",
+    "summary": "Perplexity unveils Pages, letting users transform AI-assisted research into shareable, multimedia articles.",
+    "url": "https://www.perplexity.ai/hub/blog/introducing-perplexity-pages",
+    "language": "en",
+    "tags": [
+      "perplexity",
+      "pages",
+      "product"
+    ],
+    "publishedAt": "2024-04-30T18:45:00Z",
+    "collectedAt": "2024-05-01T09:55:00Z"
+  },
+  {
+    "id": "microsoft-blog-20240423",
+    "providerSlug": "microsoft-ai",
+    "providerName": "Microsoft AI",
+    "source": "website",
+    "origin": "microsoft-research",
+    "title": "Microsoft introduces Phi-3 family of small language models",
+    "summary": "Microsoft Research debuts Phi-3-mini, Phi-3-small, and Phi-3-medium models optimized for on-device and enterprise AI.",
+    "url": "https://www.microsoft.com/en-us/research/blog/introducing-phi-3/",
+    "language": "en",
+    "tags": [
+      "microsoft",
+      "phi-3",
+      "llm"
+    ],
+    "publishedAt": "2024-04-23T16:00:00Z",
+    "collectedAt": "2024-04-24T08:00:00Z"
+  },
+  {
+    "id": "meta-ai-blog-20240418",
+    "providerSlug": "meta-ai",
+    "providerName": "Meta AI",
+    "source": "website",
+    "origin": "meta-ai-blog",
+    "title": "Meta releases Llama 3",
+    "summary": "Meta open-sources Llama 3 models with improved performance, multilingual support, and updated safety tooling.",
+    "url": "https://ai.meta.com/blog/llama-3/",
+    "language": "en",
+    "tags": [
+      "meta",
+      "llama-3",
+      "open-source"
+    ],
+    "publishedAt": "2024-04-18T14:00:00Z",
+    "collectedAt": "2024-04-19T09:45:00Z"
+  },
+  {
+    "id": "cohere-blog-20240328",
+    "providerSlug": "cohere",
+    "providerName": "Cohere",
+    "source": "website",
+    "origin": "cohere-blog",
+    "title": "Introducing Command R+ for enterprise AI",
+    "summary": "Cohere releases Command R+, a retrieval-augmented language model tailored for complex enterprise workflows and multilingual tasks.",
+    "url": "https://cohere.com/blog/introducing-command-r-plus",
+    "language": "en",
+    "tags": [
+      "cohere",
+      "command-r",
+      "enterprise"
+    ],
+    "publishedAt": "2024-03-28T10:00:00Z",
+    "collectedAt": "2024-03-28T16:20:00Z"
+  },
+  {
+    "id": "stability-news-20240312",
+    "providerSlug": "stability-ai",
+    "providerName": "Stability AI",
+    "source": "website",
+    "origin": "stability-news",
+    "title": "Stable Diffusion 3 arrives with improved image generation",
+    "summary": "Stability AI introduces Stable Diffusion 3, delivering stronger text rendering, photorealism, and safety controls.",
+    "url": "https://stability.ai/news/stable-diffusion-3",
+    "language": "en",
+    "tags": [
+      "stability",
+      "stable-diffusion",
+      "image"
+    ],
+    "publishedAt": "2024-03-12T09:00:00Z",
+    "collectedAt": "2024-03-12T12:10:00Z"
+  }
+]
