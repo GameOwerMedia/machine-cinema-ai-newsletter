@@ -20,7 +20,7 @@ def test_gather_returns_sample_articles(tmp_path, monkeypatch):
     assert isinstance(articles, list)
     assert articles, "Expected gather() to return sample articles"
     for article in articles:
-        assert set(article) >= {"title", "link", "summary", "source"}
+        assert set(article) >= {"title", "link", "summary", "source", "image"}
         assert article["title"].strip()
         assert article["link"].startswith("http")
 

@@ -1,10 +1,12 @@
 # generate_all.py
 import os
-from datetime import datetime
-from fetch_ai_news import gather, save_seen
-import markdown
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from make_posts import format_post
+from typing import Dict, List, Tuple
+
+from dateutil import parser as date_parser
+
+from fetch_ai_news import gather, save_seen
 
 N_PER_BUCKET = 5
 
@@ -82,6 +84,23 @@ BIZDEV_KW = {
     "government", "rząd", "ministry", "ministerstwo", "digital", "cyfryzacja"
 }
 
+MONTHS_PL = {
+    1: "stycznia",
+    2: "lutego",
+    3: "marca",
+    4: "kwietnia",
+    5: "maja",
+    6: "czerwca",
+    7: "lipca",
+    8: "sierpnia",
+    9: "września",
+    10: "października",
+    11: "listopada",
+    12: "grudnia",
+}
+
+DEFAULT_IMAGE = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80"
+
 def score_for(bucket, item):
     title = (item.get("title") or "")
     summ = (item.get("summary") or "")
@@ -130,6 +149,86 @@ def pick_top(items, bucket, n, already_used, scorer):
                 break
     return chosen
 
+
+def _parse_iso(value: str) -> datetime:
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        dt = date_parser.parse(value)
+        if not dt.tzinfo:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+
+
+def _format_datetime_pl(value: str) -> str:
+    dt = _parse_iso(value).astimezone(ZoneInfo("Europe/Warsaw"))
+    month = MONTHS_PL.get(dt.month, "")
+    return f"{dt.day} {month} {dt.year}, {dt:%H:%M}"
+
+
+def _render_latest_list(articles: List[Dict[str, str]]) -> str:
+    items = []
+    for art in articles[:6]:
+        items.append(
+            f"<li><a href=\"{art['link']}\" target=\"_blank\" rel=\"noopener\">"
+            f"{art['title']}</a><span>{art['source']}</span></li>"
+        )
+    return "\n".join(items)
+
+
+def _render_card(article: Dict[str, str]) -> str:
+    image = article.get("image") or DEFAULT_IMAGE
+    summary = article.get("summary", "")
+    if len(summary) > 220:
+        summary = summary[:217] + "..."
+    return f"""
+    <article class=\"news-card\">
+      <a class=\"card-image\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">
+        <img src=\"{image}\" alt=\"{article['title']}\" loading=\"lazy\" />
+      </a>
+      <div class=\"card-body\">
+        <h3><a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">{article['title']}</a></h3>
+        <p class=\"meta\">{article['source']} • {_format_datetime_pl(article['published'])}</p>
+        <p class=\"summary\">{summary}</p>
+      </div>
+    </article>
+    """.strip()
+
+
+def _render_section(name: str, anchor: str, articles: List[Dict[str, str]]) -> str:
+    cards = "\n".join(_render_card(article) for article in articles)
+    return f"""
+    <section class=\"section-block\" id=\"{anchor}\">
+      <header class=\"section-header\">
+        <h2>{name}</h2>
+      </header>
+      <div class=\"news-grid\">
+        {cards}
+      </div>
+    </section>
+    """.strip()
+
+
+def _render_featured(article: Dict[str, str]) -> str:
+    image = article.get("image") or DEFAULT_IMAGE
+    summary = article.get("summary", "")
+    if len(summary) > 280:
+        summary = summary[:277] + "..."
+    return f"""
+    <article class=\"hero-article\">
+      <a class=\"hero-image\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">
+        <img src=\"{image}\" alt=\"{article['title']}\" />
+      </a>
+      <div class=\"hero-content\">
+        <span class=\"pill\">Najważniejszy temat</span>
+        <h2><a href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">{article['title']}</a></h2>
+        <p class=\"meta\">{article['source']} • {_format_datetime_pl(article['published'])}</p>
+        <p class=\"summary\">{summary}</p>
+        <a class=\"hero-button\" href=\"{article['link']}\" target=\"_blank\" rel=\"noopener\">Czytaj artykuł →</a>
+      </div>
+    </article>
+    """.strip()
+
 def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_urls=True):
     os.makedirs("out", exist_ok=True)
     items = gather()
@@ -138,105 +237,110 @@ def main(outfile_format="md", site_dir="docs", date_override=None, save_seen_url
         return
 
     today = date_override or datetime.now().strftime("%Y-%m-%d")
-    title = f"Newsletter AI — Machine Cinema Poland — {today}"
     out_path = f"out/{today}_ALL.{outfile_format}"
 
-    # sekcje i styl hooków (bez pytań)
-    sections = [
-        ("GenerativeAI creators", "creators", "creators"),
+    featured_article = items[0]
+    used_links = {featured_article["link"]}
+
+    sections_cfg: List[Tuple[str, str, str]] = [
+        ("GenerativeAI creators", "creators", "creator"),
         ("Marketing / fun", "marketing", "marketing"),
         ("Biznes & dev", "bizdev", "bizdev"),
     ]
 
-    used = set()
-    rendered = []
-    for section_title, bucket, style in sections:
-        top = pick_top(items, bucket, 5, already_used=used, scorer=score_for)
-        posts = [format_post(it, style=style) for it in top]
-        rendered.append((section_title, posts))
+    section_payloads: List[Tuple[str, str, List[Dict[str, str]]]] = []
+    for section_title, bucket, anchor in sections_cfg:
+        top_articles = pick_top(items, bucket, 4, already_used=used_links, scorer=score_for)
+        section_payloads.append((section_title, anchor, top_articles))
 
-    # zapis jednego pliku
-    if outfile_format == "md":
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(f"# {title}\n\n")
-            idx = 1
-            for sec, posts in rendered:
-                f.write(f"## {sec}\n\n")
-                for p in posts:
-                    f.write(f"{idx}. {p}\n\n")
-                    idx += 1
-    else:
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(f"{title}\n\n")
-            idx = 1
-            for sec, posts in rendered:
-                f.write(sec.upper() + "\n\n")
-                for p in posts:
-                    f.write(f"{idx}. {p}\n\n")
-                    idx += 1
+    # Optional markdown export for archival purposes
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(f"# Machine Cinema Poland — {today}\n\n")
+        f.write("## Najważniejsze artykuły\n\n")
+        f.write(f"1. {featured_article['title']} — {featured_article['link']}\n\n")
+        for idx, (section_title, anchor, articles) in enumerate(section_payloads, start=2):
+            f.write(f"## {section_title}\n\n")
+            for article in articles:
+                f.write(f"- {article['title']} — {article['link']}\n")
+            f.write("\n")
 
-    # zapamiętaj, co wykorzystano
     if save_seen_urls:
         save_seen([it["link"] for it in items])
 
-    # --- Static HTML builder (no Jekyll required) ---
     TZ_PL = ZoneInfo("Europe/Warsaw")
     TZ_LA = ZoneInfo("America/Los_Angeles")
+    hero_html = _render_featured(featured_article)
+    sections_html = "\n".join(
+        _render_section(name, anchor, arts) for name, anchor, arts in section_payloads if arts
+    )
+    latest_html = _render_latest_list(items)
 
-    def build_html(today_str: str, md_path: str) -> str:
-        with open(md_path, "r", encoding="utf-8") as f:
-            md_src = f.read()
-        html_content = markdown.markdown(md_src, extensions=["fenced_code", "tables"])
-
+    def build_html(today_str: str) -> str:
         now_pl = datetime.now(TZ_PL)
         now_la = now_pl.astimezone(TZ_LA)
-        banner_note = f"Automatyczny update: 09:00 (Warszawa) / 00:00 (Los Angeles)"
+        banner_note = (
+            f"Aktualizacja: {now_pl:%d.%m.%Y, %H:%M} (Warszawa) "
+            f"/ {now_la:%d.%m.%Y, %H:%M} (Los Angeles)"
+        )
 
         return f"""<!DOCTYPE html>
 <html lang=\"pl\">
 <head>
   <meta charset=\"UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-  <title>Machine Cinema Poland - Daily AI Newsletter — {today_str}</title>
-  <meta name=\"description\" content=\"Codzienny przegląd AI — Machine Cinema Poland\" />
+  <title>Machine Cinema Poland — AI News Portal — {today_str}</title>
+  <meta name=\"description\" content=\"Codzienny portal wiadomości o sztucznej inteligencji w Polsce\" />
   <link rel=\"stylesheet\" href=\"assets/custom.css\" />
   <link rel=\"icon\" href=\"assets/favicon.svg\" type=\"image/svg+xml\" />
-  <meta name=\"theme-color\" content=\"#ff2b2b\" />
+  <meta name=\"theme-color\" content=\"#b80000\" />
   <meta name=\"robots\" content=\"index,follow\" />
 </head>
 <body>
-  <header>
-    <h1>
-      🧠 <a href=\"https://machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Machine Cinema</a> Poland
-      <span class=\"subtitle\">– Daily AI Newsletter</span>
-    </h1>
-    <p class=\"tagline\">Codzienny przegląd AI</p>
+  <header class=\"top-bar\">
+    <div class=\"logo-wrap\">
+      <span class=\"logo-mark\">🧠</span>
+      <div>
+        <a class=\"brand\" href=\"https://machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Machine Cinema Poland</a>
+        <p class=\"strapline\">Portal wiadomości o sztucznej inteligencji</p>
+      </div>
+    </div>
+    <nav class=\"primary-nav\">
+      <a href=\"#creator\">Twórcy</a>
+      <a href=\"#marketing\">Marketing</a>
+      <a href=\"#bizdev\">Biznes &amp; dev</a>
+    </nav>
   </header>
 
-  <div class=\"banner\">\n    <span class=\"clock\">🕘</span> {banner_note}\n  </div>
+  <div class=\"banner\"><span class=\"clock\">🕘</span>{banner_note}</div>
 
-  <main>
-    <section class=\"newsletter\">
-      {html_content}
+  <main class=\"page\">
+    <section class=\"hero\">
+      {hero_html}
+      <aside class=\"latest\">
+        <h3>W skrócie</h3>
+        <ul>
+          {latest_html}
+        </ul>
+      </aside>
+    </section>
+
+    <section class=\"sections\">
+      {sections_html}
     </section>
   </main>
 
   <footer class=\"footer\">
-    <hr>
-    <p>
-      Chcesz wiedzieć więcej? <br>
-      Zajrzyj na stronę
-      <a href=\"https://machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Machine Cinema</a>,
-      sprawdź <a href=\"https://text.machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">wiadomości ze świata</a>
-      oraz aktualne
-      <a href=\"https://luma.com/machinecinema\" target=\"_blank\" rel=\"noopener\">oficjalne wydarzenia w Twojej okolicy</a>.
-    </p>
-    <p class=\"copyright\">© {today_str[:4]} Machine Cinema Poland</p>
+    <div class=\"footer-links\">
+      <a href=\"https://text.machinecinema.ai/\" target=\"_blank\" rel=\"noopener\">Globalne wiadomości</a>
+      <a href=\"https://luma.com/machinecinema\" target=\"_blank\" rel=\"noopener\">Wydarzenia</a>
+      <a href=\"mailto:contact@machinecinema.ai\">Kontakt redakcji</a>
+    </div>
+    <p>© {today_str[:4]} Machine Cinema Poland — codziennie najświeższe informacje o AI.</p>
   </footer>
 </body>
 </html>"""
 
-    html = build_html(today, out_path)
+    html = build_html(today)
     os.makedirs(site_dir, exist_ok=True)
     dated = os.path.join(site_dir, f"{today}.html")
     with open(dated, "w", encoding="utf-8") as f:
