@@ -39,3 +39,6 @@ test_output/
 config_secrets.py
 *.key
 *.pem
+node_modules/
+dist/
+
